@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda estilo Google</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <h1>Agenda</h1>
+  <div class="controls">
+    <button onclick="changeMonth(-1)">← Mês Anterior</button>
+    <span id="month-year"></span>
+    <button onclick="changeMonth(1)">Próximo Mês →</button>
+  </div>
+  <div id="calendar" class="calendar"></div>
+
+  <form id="event-form">
+    <h2>Adicionar / Editar Evento</h2>
+    <input type="date" id="event-date" required>
+    <input type="text" id="event-title" placeholder="Título" required>
+    <input type="text" id="event-desc" placeholder="Descrição" required>
+    <button type="submit">Salvar</button>
+  </form>
+
+  <div id="event-list"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
