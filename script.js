@@ -77,15 +77,29 @@ function loadCalendar() {
     if (events[dateStr]) {
       events[dateStr].forEach((ev) => {
         const evEl = document.createElement('div');
-        evEl.className = 'event';
-        evEl.innerHTML = `
-          <strong>${ev.title}</strong>
-          <div class="actions">
-            <button onclick="editEvent('${ev.id}', '${encodeURIComponent(ev.title)}', '${encodeURIComponent(ev.desc)}', '${dateStr}')">✏️</button>
-            <button onclick="deleteEvent('${ev.id}')">🗑️</button>
-          </div>
-        `;
-        dayEl.appendChild(evEl);
+evEl.className = 'event';
+evEl.innerHTML = `
+  <strong>${ev.title}</strong>
+  <div class="actions">
+    <button onclick="editEvent('${ev.id}', '${encodeURIComponent(ev.title)}', '${encodeURIComponent(ev.desc)}', '${dateStr}')">✏️</button>
+    <button onclick="deleteEvent('${ev.id}')">🗑️</button>
+  </div>
+`;
+
+// Adiciona clique para abrir o modal com detalhes
+evEl.addEventListener("click", (e) => {
+  // Evita que os botões dentro do evento disparem o modal
+  if (e.target.tagName !== "BUTTON") {
+    openEventModal({
+      title: ev.title,
+      description: ev.desc,
+      date: dateStr
+    });
+  }
+});
+
+dayEl.appendChild(evEl);
+
       });
     }
 
@@ -141,3 +155,23 @@ eventForm.onsubmit = async (e) => {
 };
 
 fetchEvents();
+// Abrir modal com os detalhes do evento
+function openEventModal(event) {
+  const modal = document.getElementById("event-modal");
+  const title = document.getElementById("modal-title");
+  const date = document.getElementById("modal-date");
+  const description = document.getElementById("modal-description");
+
+  title.textContent = event.title;
+  date.textContent = `Data: ${event.date}`;
+  description.textContent = event.description || "Sem descrição";
+
+  modal.classList.remove("hidden");
+}
+
+// Fechar modal
+document.getElementById("close-modal").addEventListener("click", () => {
+  document.getElementById("event-modal").classList.add("hidden");
+});
+
+

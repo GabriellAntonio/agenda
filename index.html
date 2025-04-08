@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agenda de Viagens</title>
+  <title>Agenda estilo Google</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/png" href="favicon-32x32.png">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body>
   <h1>Agenda</h1>
@@ -27,6 +27,18 @@
 
   <div id="event-list"></div>
 
+  <!-- Modal de evento -->
+<div id="event-modal" class="modal hidden">
+  <div class="modal-content">
+    <span id="close-modal" class="close">&times;</span>
+    <h2 id="modal-title">Título do Evento</h2>
+    <p id="modal-date">Data</p>
+    <p id="modal-description">Descrição</p>
+    <div id="modal-actions">
+      <!-- Botões de ação podem ir aqui -->
+    </div>
+  </div>
+</div>
   <script src="script.js"></script>
 </body>
 </html>
