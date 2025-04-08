@@ -173,5 +173,12 @@ function openEventModal(event) {
 document.getElementById("close-modal").addEventListener("click", () => {
   document.getElementById("event-modal").classList.add("hidden");
 });
+// Fechar o modal com a tecla ESC
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    document.getElementById("event-modal").classList.add("hidden");
+  }
+});
+
 
 
