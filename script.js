@@ -23,14 +23,19 @@ async function fetchEvents() {
     events = {};
     data.forEach(ev => {
       if (!events[ev.date]) events[ev.date] = [];
-      events[ev.date].push({ id: ev.id, title: ev.title, desc: ev.description, done: ev.done });
+      events[ev.date].push({
+        id: ev.id,
+        title: ev.title,
+        desc: ev.description,
+        done: ev.done
+      });
     });
     loadCalendar();
   }
 }
 
 async function addEvent(date, title, desc) {
-  await client.from('events').insert({ date, title, description: desc });
+  await client.from('events').insert({ date, title, description: desc, done: false });
   fetchEvents();
 }
 
@@ -43,6 +48,13 @@ async function deleteEvent(id) {
   await client.from('events').delete().eq('id', id);
   fetchEvents();
 }
+
+window.toggleDone = async function(id, status) {
+  const { error } = await client.from('events').update({ done: status }).eq('id', id);
+  if (!error) {
+    fetchEvents();
+  }
+};
 
 function loadCalendar() {
   calendar.innerHTML = '';
@@ -111,21 +123,20 @@ function loadCalendar() {
       events[dateStr].forEach((ev) => {
         const evEl = document.createElement('div');
         evEl.className = 'event';
-      evEl.innerHTML = `
-  <label style="display: flex; align-items: center; gap: 5px;">
-    <input type="checkbox" ${ev.done ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleDone('${ev.id}', this.checked)">
 
-    <span style="text-decoration: ${ev.done ? 'line-through' : 'none'};">${ev.title}</span>
-  </label>
-  <div class="actions">
-    <button onclick="editEvent('${ev.id}', '${encodeURIComponent(ev.title)}', '${encodeURIComponent(ev.desc)}', '${dateStr}')">✏️</button>
-    <button onclick="deleteEvent('${ev.id}')">🗑️</button>
-  </div>
-`;
-
+        evEl.innerHTML = `
+          <label style="display: flex; align-items: center; gap: 5px;">
+            <input type="checkbox" ${ev.done ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleDone('${ev.id}', this.checked)">
+            <span style="text-decoration: ${ev.done ? 'line-through' : 'none'};">${ev.title}</span>
+          </label>
+          <div class="actions">
+            <button onclick="editEvent('${ev.id}', '${encodeURIComponent(ev.title)}', '${encodeURIComponent(ev.desc)}', '${dateStr}')">✏️</button>
+            <button onclick="deleteEvent('${ev.id}')">🗑️</button>
+          </div>
+        `;
 
         evEl.addEventListener("click", (e) => {
-          if (e.target.tagName !== "BUTTON") {
+          if (e.target.tagName !== "BUTTON" && e.target.type !== "checkbox") {
             openEventModal({
               title: ev.title,
               description: ev.desc,
@@ -213,11 +224,3 @@ document.addEventListener("keydown", (event) => {
     document.getElementById("event-modal").classList.add("hidden");
   }
 });
-window.toggleDone = async function(id, status) {
-  const { error } = await client.from('events').update({ done: status }).eq('id', id);
-if (!error) {
-  fetchEvents();
-}
-
-  fetchEvents();
-};
