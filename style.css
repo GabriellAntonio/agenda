@@ -185,4 +185,16 @@ h1 {
   color: #2d3436;
   cursor: pointer;
 }
+.today {
+  background-color: #8fdff7 !important; /* Verde limão */
+  color: #000 !important;
+}
 
+.holiday {
+  background-color: #ff4d4d !important; /* Vermelho */
+  color: #fff !important;
+}
+.event input[type="checkbox"] {
+  accent-color: #00ff6a;
+  cursor: pointer;
+}

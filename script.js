@@ -1,6 +1,6 @@
+
 const { createClient } = supabase;
 
-// ⛅ Substitua com sua URL e chave do projeto Supabase
 const SUPABASE_URL = 'https://dkbirnicdksacmabxixk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrYmlybmljZGtzYWNtYWJ4aXhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM4NTg5NDksImV4cCI6MjA1OTQzNDk0OX0.dNyZ5AaXyV8rMDa_XyGYsw4oHb7WOalIW6WcZwVqPXk';
 const client = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -23,7 +23,7 @@ async function fetchEvents() {
     events = {};
     data.forEach(ev => {
       if (!events[ev.date]) events[ev.date] = [];
-      events[ev.date].push({ id: ev.id, title: ev.title, desc: ev.description });
+      events[ev.date].push({ id: ev.id, title: ev.title, desc: ev.description, done: ev.done });
     });
     loadCalendar();
   }
@@ -67,39 +67,74 @@ function loadCalendar() {
     calendar.appendChild(empty);
   }
 
+  const today = new Date();
+  const feriadosFixos = {
+    [`${year}-01-01`]: 'Ano Novo',
+    [`${year}-04-21`]: 'Tiradentes',
+    [`${year}-05-01`]: 'Dia do Trabalho',
+    [`${year}-09-07`]: 'Independência do Brasil',
+    [`${year}-10-12`]: 'Nossa Senhora Aparecida',
+    [`${year}-11-02`]: 'Finados',
+    [`${year}-11-15`]: 'Proclamação da República',
+    [`${year}-11-20`]: 'Dia da Consciência Negra',
+    [`${year}-12-25`]: 'Natal',
+    [`${year}-12-31`]: 'Véspera de Ano Novo '
+  };
+
   for (let day = 1; day <= daysInMonth; day++) {
-    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const monthStr = (month + 1).toString().padStart(2, '0');
+    const dayStr = day.toString().padStart(2, '0');
+    const dateStr = `${year}-${monthStr}-${dayStr}`;
+
     const dayEl = document.createElement('div');
     dayEl.className = 'day';
     dayEl.dataset.date = dateStr;
-    dayEl.innerHTML = `<div class="date">${day}</div>`;
+
+    const dateDiv = document.createElement('div');
+    dateDiv.className = 'date';
+    dateDiv.innerText = day;
+    dayEl.appendChild(dateDiv);
+
+    if (feriadosFixos[dateStr]) {
+      const feriadoEl = document.createElement('div');
+      feriadoEl.className = 'feriado-nome';
+      feriadoEl.innerText = feriadosFixos[dateStr];
+      dayEl.appendChild(feriadoEl);
+      dayEl.classList.add('holiday');
+    }
+
+    if (today.toDateString() === new Date(year, month, day).toDateString()) {
+      dayEl.classList.add('today');
+    }
 
     if (events[dateStr]) {
       events[dateStr].forEach((ev) => {
         const evEl = document.createElement('div');
-evEl.className = 'event';
-evEl.innerHTML = `
-  <strong>${ev.title}</strong>
+        evEl.className = 'event';
+      evEl.innerHTML = `
+  <label style="display: flex; align-items: center; gap: 5px;">
+    <input type="checkbox" ${ev.done ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleDone('${ev.id}', this.checked)">
+
+    <span style="text-decoration: ${ev.done ? 'line-through' : 'none'};">${ev.title}</span>
+  </label>
   <div class="actions">
     <button onclick="editEvent('${ev.id}', '${encodeURIComponent(ev.title)}', '${encodeURIComponent(ev.desc)}', '${dateStr}')">✏️</button>
     <button onclick="deleteEvent('${ev.id}')">🗑️</button>
   </div>
 `;
 
-// Adiciona clique para abrir o modal com detalhes
-evEl.addEventListener("click", (e) => {
-  // Evita que os botões dentro do evento disparem o modal
-  if (e.target.tagName !== "BUTTON") {
-    openEventModal({
-      title: ev.title,
-      description: ev.desc,
-      date: dateStr
-    });
-  }
-});
 
-dayEl.appendChild(evEl);
+        evEl.addEventListener("click", (e) => {
+          if (e.target.tagName !== "BUTTON") {
+            openEventModal({
+              title: ev.title,
+              description: ev.desc,
+              date: dateStr
+            });
+          }
+        });
 
+        dayEl.appendChild(evEl);
       });
     }
 
@@ -155,7 +190,7 @@ eventForm.onsubmit = async (e) => {
 };
 
 fetchEvents();
-// Abrir modal com os detalhes do evento
+
 function openEventModal(event) {
   const modal = document.getElementById("event-modal");
   const title = document.getElementById("modal-title");
@@ -169,16 +204,20 @@ function openEventModal(event) {
   modal.classList.remove("hidden");
 }
 
-// Fechar modal
 document.getElementById("close-modal").addEventListener("click", () => {
   document.getElementById("event-modal").classList.add("hidden");
 });
-// Fechar o modal com a tecla ESC
+
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     document.getElementById("event-modal").classList.add("hidden");
   }
 });
+window.toggleDone = async function(id, status) {
+  const { error } = await client.from('events').update({ done: status }).eq('id', id);
+if (!error) {
+  fetchEvents();
+}
 
-
-
+  fetchEvents();
+};
