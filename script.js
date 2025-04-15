@@ -176,10 +176,14 @@ function loadEventList(date) {
   } else {
     evs.forEach((ev) => {
       const el = document.createElement('div');
-      el.innerText = `${ev.title} - ${ev.desc}`;
+      el.innerText = `${ev.title} - ${ev.desc} (${formatarDataBrasileira(date)})`;
       eventList.appendChild(el);
     });
   }
+}
+function formatarDataBrasileira(dataISO) {
+  const [ano, mes, dia] = dataISO.split('-');
+  return `${dia}/${mes}/${ano}`;
 }
 
 window.editEvent = function(id, title, desc, date) {
@@ -219,7 +223,7 @@ function openEventModal(event) {
   const description = document.getElementById("modal-description");
 
   title.textContent = event.title;
-  date.textContent = `Data: ${event.date}`;
+  date.textContent = `Data: ${formatarDataBrasileira(event.date)}`;
   description.textContent = event.description || "Sem descrição";
 
   modal.classList.remove("hidden");
