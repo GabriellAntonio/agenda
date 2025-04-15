@@ -198,3 +198,7 @@ h1 {
   accent-color: #00ff6a;
   cursor: pointer;
 }
+.event.done {
+  background-color: #b9fbc0 !important; /* Verde claro */
+  color: #000;
+}

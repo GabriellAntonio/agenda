@@ -122,12 +122,22 @@ function loadCalendar() {
     if (events[dateStr]) {
       events[dateStr].forEach((ev) => {
         const evEl = document.createElement('div');
-        evEl.className = 'event';
+const isPast = new Date(dateStr) < new Date().setHours(0, 0, 0, 0);
+const isDone = ev.done || isPast;
+evEl.className = `event${isDone ? ' done' : ''}`;
+
 
         evEl.innerHTML = `
           <label style="display: flex; align-items: center; gap: 5px;">
-            <input type="checkbox" ${ev.done ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleDone('${ev.id}', this.checked)">
-            <span style="text-decoration: ${ev.done ? 'line-through' : 'none'};">${ev.title}</span>
+            ${(() => {
+  const isPast = new Date(dateStr) < new Date().setHours(0, 0, 0, 0);
+  const checked = isPast || ev.done;
+  return `
+    <input type="checkbox" ${checked ? 'checked' : ''} disabled>
+    <span style="text-decoration: ${checked ? 'line-through' : 'none'};">${ev.title}</span>
+  `;
+})()}
+
           </label>
           <div class="actions">
             <button onclick="editEvent('${ev.id}', '${encodeURIComponent(ev.title)}', '${encodeURIComponent(ev.desc)}', '${dateStr}')">✏️</button>
