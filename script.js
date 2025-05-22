@@ -120,44 +120,54 @@ function loadCalendar() {
     }
 
     if (events[dateStr]) {
-      events[dateStr].forEach((ev) => {
-        const evEl = document.createElement('div');
-const isPast = new Date(dateStr) < new Date().setHours(0, 0, 0, 0);
-const isDone = ev.done || isPast;
-evEl.className = `event${isDone ? ' done' : ''}`;
+  events[dateStr].forEach((ev) => {
+    const evEl = document.createElement('div');
+    
+    const eventDate = new Date(dateStr);
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const isPast = eventDate < hoje;
+    const isDone = ev.done;
 
+    let eventClass = 'event';
+    let textDecoration = 'none';
+    let bgColor = '';
 
-        evEl.innerHTML = `
-          <label style="display: flex; align-items: center; gap: 5px;">
-            ${(() => {
-  const isPast = new Date(dateStr) < new Date().setHours(0, 0, 0, 0);
-  const checked = isPast || ev.done;
-  return `
-    <input type="checkbox" ${checked ? 'checked' : ''} disabled>
-    <span style="text-decoration: ${checked ? 'line-through' : 'none'};">${ev.title}</span>
-  `;
-})()}
-
-          </label>
-          <div class="actions">
-            <button onclick="editEvent('${ev.id}', '${encodeURIComponent(ev.title)}', '${encodeURIComponent(ev.desc)}', '${dateStr}')">✏️</button>
-            <button onclick="deleteEvent('${ev.id}')">🗑️</button>
-          </div>
-        `;
-
-        evEl.addEventListener("click", (e) => {
-          if (e.target.tagName !== "BUTTON" && e.target.type !== "checkbox") {
-            openEventModal({
-              title: ev.title,
-              description: ev.desc,
-              date: dateStr
-            });
-          }
-        });
-
-        dayEl.appendChild(evEl);
-      });
+    if (isDone) {
+      eventClass += ' done';
+      textDecoration = 'line-through';
+    } else if (isPast && !isDone) {
+      bgColor = 'background-color: #ffcccc !important;'; // vermelho claro
+      textDecoration = 'line-through';
     }
+
+    evEl.className = eventClass;
+
+    evEl.innerHTML = `
+      <label style="display: flex; align-items: center; gap: 5px; ${bgColor}">
+        <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleDone('${ev.id}', this.checked)">
+        <span style="text-decoration: ${textDecoration};">${ev.title}</span>
+      </label>
+      <div class="actions">
+        <button onclick="editEvent('${ev.id}', '${encodeURIComponent(ev.title)}', '${encodeURIComponent(ev.desc)}', '${dateStr}')">✏️</button>
+        <button onclick="deleteEvent('${ev.id}')">🗑️</button>
+      </div>
+    `;
+
+    evEl.addEventListener("click", (e) => {
+      if (e.target.tagName !== "BUTTON" && e.target.type !== "checkbox") {
+        openEventModal({
+          title: ev.title,
+          description: ev.desc,
+          date: dateStr
+        });
+      }
+    });
+
+    dayEl.appendChild(evEl);
+  });
+}
+
 
     dayEl.onclick = () => {
       eventDateInput.value = dateStr;
