@@ -6,11 +6,11 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const calendar = document.getElementById('calendar');
-const eventForm = document.getElementById('event-form');
-const eventDateInput = document.getElementById('event-date');
-const eventTitleInput = document.getElementById('event-title');
-const eventDescInput = document.getElementById('event-desc');
-const eventList = document.getElementById('event-list');
+//const eventForm = document.getElementById('event-form');
+//const eventDateInput = document.getElementById('event-date');
+//const eventTitleInput = document.getElementById('event-title');
+//const eventDescInput = document.getElementById('event-desc');
+//const eventList = document.getElementById('event-list');
 const monthYearLabel = document.getElementById('month-year');
 
 let events = {};
@@ -55,6 +55,16 @@ window.toggleDone = async function(id, status) {
     fetchEvents();
   }
 };
+
+function openEventModalEdit({ id = null, title = "", description = "", date }) {
+  document.getElementById("modal-event-id").value = id || "";
+  document.getElementById("modal-event-title").value = title;
+  document.getElementById("modal-event-desc").value = description;
+  document.getElementById("modal-event-date").value = date;
+
+  document.getElementById("modal-title-label").textContent = id ? "Editar Evento" : "Adicionar Evento";
+  document.getElementById("event-modal").classList.remove("hidden");
+}
 
 function loadCalendar() {
   calendar.innerHTML = '';
@@ -169,10 +179,17 @@ function loadCalendar() {
 }
 
 
-    dayEl.onclick = () => {
-      eventDateInput.value = dateStr;
-      loadEventList(dateStr);
-    };
+    dayEl.onclick = (e) => {
+  const hasEvent = events[dateStr] && events[dateStr].length > 0;
+  
+  // Evita abrir modal se clicou em cima de um evento
+  if (e.target.closest('.event')) return;
+
+  openEventModalEdit({
+    date: dateStr
+  });
+};
+
 
     calendar.appendChild(dayEl);
   }
@@ -208,36 +225,36 @@ window.changeMonth = function(offset) {
   loadCalendar();
 };
 
-eventForm.onsubmit = async (e) => {
-  e.preventDefault();
-  const date = eventDateInput.value;
-  const title = eventTitleInput.value;
-  const desc = eventDescInput.value;
+//eventForm.onsubmit = async (e) => {
+//  e.preventDefault();
+//  const date = eventDateInput.value;
+//  const title = eventTitleInput.value;
+//  const desc = eventDescInput.value;
+//
+ // if (editingEventId) {
+//    await updateEvent(editingEventId, title, desc);
+//    editingEventId = null;
+//  } else {
+//    await addEvent(date, title, desc);
+ // }
 
-  if (editingEventId) {
-    await updateEvent(editingEventId, title, desc);
-    editingEventId = null;
-  } else {
-    await addEvent(date, title, desc);
-  }
-
-  eventForm.reset();
-};
+ // eventForm.reset();
+//};
 
 fetchEvents();
 
-function openEventModal(event) {
-  const modal = document.getElementById("event-modal");
-  const title = document.getElementById("modal-title");
-  const date = document.getElementById("modal-date");
-  const description = document.getElementById("modal-description");
-
-  title.textContent = event.title;
-  date.textContent = `Data: ${formatarDataBrasileira(event.date)}`;
-  description.textContent = event.description || "Sem descrição";
-
-  modal.classList.remove("hidden");
-}
+//function openEventModal(event) {
+//  const modal = document.getElementById("event-modal");
+ // const title = document.getElementById("modal-title");
+ // const date = document.getElementById("modal-date");
+ // const description = document.getElementById("modal-description");
+//
+//  title.textContent = event.title;
+//  date.textContent = `Data: ${formatarDataBrasileira(event.date)}`;
+//  description.textContent = event.description || "Sem descrição";
+//
+//  modal.classList.remove("hidden");
+//}
 
 document.getElementById("close-modal").addEventListener("click", () => {
   document.getElementById("event-modal").classList.add("hidden");
@@ -247,4 +264,21 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     document.getElementById("event-modal").classList.add("hidden");
   }
+});
+document.getElementById("modal-event-form").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const id = document.getElementById("modal-event-id").value;
+  const date = document.getElementById("modal-event-date").value;
+  const title = document.getElementById("modal-event-title").value;
+  const desc = document.getElementById("modal-event-desc").value;
+
+  if (id) {
+    await updateEvent(id, title, desc);
+  } else {
+    await addEvent(date, title, desc);
+  }
+
+  document.getElementById("modal-event-form").reset();
+  document.getElementById("event-modal").classList.add("hidden");
 });
