@@ -17,28 +17,31 @@
   </div>
   <div id="calendar" class="calendar"></div>
 
-  <form id="event-form">
+<!--  <form id="event-form">
     <h2>Adicionar / Editar Evento</h2>
-    <input type="date" id="event-date" required>
+     <input type="date" id="event-date" required>
     <input type="text" id="event-title" placeholder="Título" required>
-    <input type="text" id="event-desc" placeholder="Descrição" required>
-    <button type="submit">Salvar</button>
-  </form>
+   <input type="text" id="event-desc" placeholder="Descrição" required>
+   <button type="submit">Salvar</button>
+  </form> -->
 
   <div id="event-list"></div>
 
-  <!-- Modal de evento -->
+<!-- Modal de evento (edição e criação) -->
 <div id="event-modal" class="modal hidden">
   <div class="modal-content">
     <span id="close-modal" class="close">&times;</span>
-    <h2 id="modal-title">Título do Evento</h2>
-    <p id="modal-date">Data</p>
-    <p id="modal-description">Descrição</p>
-    <div id="modal-actions">
-      <!-- Botões de ação podem ir aqui -->
-    </div>
+    <h2 id="modal-title-label">Adicionar / Editar Evento</h2>
+    <form id="modal-event-form">
+      <input type="hidden" id="modal-event-id">
+      <input type="date" id="modal-event-date" required readonly>
+      <input type="text" id="modal-event-title" placeholder="Título" required>
+      <input type="text" id="modal-event-desc" placeholder="Descrição" required>
+      <button type="submit">Salvar</button>
+    </form>
   </div>
 </div>
+
   <script src="script.js"></script>
 </body>
 </html>
