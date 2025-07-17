@@ -214,11 +214,14 @@ function formatarDataBrasileira(dataISO) {
 }
 
 window.editEvent = function(id, title, desc, date) {
-  editingEventId = id;
-  eventDateInput.value = date;
-  eventTitleInput.value = decodeURIComponent(title);
-  eventDescInput.value = decodeURIComponent(desc);
+  openEventModalEdit({
+    id,
+    title: decodeURIComponent(title),
+    description: decodeURIComponent(desc),
+    date
+  });
 };
+
 
 window.changeMonth = function(offset) {
   currentDate.setMonth(currentDate.getMonth() + offset);
