@@ -33,6 +33,7 @@ async function fetchEvents() {
     loadCalendar();
   }
 }
+let relatorioDataReferencia = new Date();
 
 async function addEvent(date, title, desc) {
   await client.from('events').insert({ date, title, description: desc, done: false });
@@ -285,3 +286,47 @@ document.getElementById("modal-event-form").addEventListener("submit", async fun
   document.getElementById("modal-event-form").reset();
   document.getElementById("event-modal").classList.add("hidden");
 });
+function abrirRelatorio() {
+  // Reseta a data para a semana atual toda vez que abrir o modal
+  relatorioDataReferencia = new Date(); 
+  gerarRelatorioSemana(); 
+  document.getElementById("relatorio-modal").classList.remove("hidden");
+}
+
+document.getElementById("close-relatorio").addEventListener("click", () => {
+  document.getElementById("relatorio-modal").classList.add("hidden");
+});
+function mudarSemanaRelatorio(offset) {
+  relatorioDataReferencia.setDate(relatorioDataReferencia.getDate() + offset);
+  gerarRelatorioSemana();
+}
+
+function gerarRelatorioSemana() {
+  // Usa a data de referência em vez de sempre usar a data de hoje
+  const inicioSemana = new Date(relatorioDataReferencia); 
+  inicioSemana.setDate(inicioSemana.getDate() - inicioSemana.getDay()); // Domingo
+  const fimSemana = new Date(inicioSemana);
+  fimSemana.setDate(inicioSemana.getDate() + 6); // Sábado
+
+  let html = `<p><b>Período:</b> ${formatarDataBrasileira(inicioSemana.toISOString().split('T')[0])} a ${formatarDataBrasileira(fimSemana.toISOString().split('T')[0])}</p>`;
+  html += "<ul>";
+
+  let encontrou = false;
+  for (let d = new Date(inicioSemana); d <= fimSemana; d.setDate(d.getDate() + 1)) {
+    const dateStr = d.toISOString().split('T')[0];
+    if (events[dateStr] && events[dateStr].length > 0) {
+      events[dateStr].forEach(ev => {
+        html += `<li><b>${formatarDataBrasileira(dateStr)}</b>: ${ev.title} - ${ev.desc} ${ev.done ? "(✔ Concluído)" : ""}</li>`;
+        encontrou = true;
+      });
+    }
+  }
+
+  if (!encontrou) {
+    html += "<li>Nenhum evento agendado nesta semana.</li>";
+  }
+
+  html += "</ul>";
+  document.getElementById("relatorio-conteudo").innerHTML = html;
+}
+
