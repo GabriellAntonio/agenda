@@ -84,7 +84,7 @@ h1 {
   align-items: center;
   gap: 20px;
   margin: 0; /* Remove a margem anterior para o container pai controlar */
-  margin-left: 160px; /* <-- Adicione esta linha */
+  margin-left: 170px; /* <-- Adicione esta linha */
 
 }
 
@@ -291,6 +291,7 @@ h1 {
 .relatorio-controls button:hover {
   background: #74b9ff;
 }
+
 
 
 
