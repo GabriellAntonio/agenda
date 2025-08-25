@@ -9,13 +9,23 @@
   <link rel="icon" type="image/png" href="favicon-32x32.png">
 </head>
 <body>
+<div class="header-container">
   <h1>Agenda</h1>
   <div class="controls">
     <button onclick="changeMonth(-1)">← Mês Anterior</button>
     <span id="month-year"></span>
     <button onclick="changeMonth(1)">Próximo Mês →</button>
+    <button onclick="abrirRelatorio()">Relatório da Semana</button>
   </div>
-  <div id="calendar" class="calendar"></div>
+</div>
+
+<div id="calendar" class="calendar"></div>
+
+
+
+<div id="calendar" class="calendar"></div>
+
+
 
 <!--  <form id="event-form">
     <h2>Adicionar / Editar Evento</h2>
@@ -41,7 +51,20 @@
     </form>
   </div>
 </div>
+<div id="relatorio-modal" class="modal hidden">
+  <div class="modal-content">
+    <span id="close-relatorio" class="close">&times;</span>
+    <h2>Relatório da Semana</h2>
+    
+    <div class="relatorio-controls">
+      <button onclick="mudarSemanaRelatorio(-7)">← Semana Anterior</button>
+      <button onclick="mudarSemanaRelatorio(7)">Próxima Semana →</button>
+    </div>
 
+    <div id="relatorio-conteudo">
+      </div>
+  </div>
+</div>
   <script src="script.js"></script>
 </body>
 </html>
