@@ -100,7 +100,7 @@ function loadCalendar() {
     [`${year}-11-02`]: 'Finados',
     [`${year}-11-15`]: 'Proclamação da República',
     [`${year}-11-20`]: 'Dia da Consciência Negra',
-    [`${year}-12-25`]: 'Natal',
+    [`${year}-12-25`]: 'Natal 🎅',
       };
 
   for (let day = 1; day <= daysInMonth; day++) {
