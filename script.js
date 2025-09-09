@@ -101,8 +101,7 @@ function loadCalendar() {
     [`${year}-11-15`]: 'Proclamação da República',
     [`${year}-11-20`]: 'Dia da Consciência Negra',
     [`${year}-12-25`]: 'Natal',
-    [`${year}-12-31`]: 'Véspera de Ano Novo '
-  };
+      };
 
   for (let day = 1; day <= daysInMonth; day++) {
     const monthStr = (month + 1).toString().padStart(2, '0');
