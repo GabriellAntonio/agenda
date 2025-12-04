@@ -92,14 +92,14 @@ function loadCalendar() {
 
   const today = new Date();
   const feriadosFixos = {
-    [`${year}-01-01`]: 'Ano Novo',
-    [`${year}-04-21`]: 'Tiradentes',
+    [`${year}-01-01`]: 'Ano Novo 🎆',
+    [`${year}-04-21`]: 'Tiradentes 🫡',
     [`${year}-05-01`]: 'Dia do Trabalho',
-    [`${year}-09-07`]: 'Independência do Brasil',
-    [`${year}-10-12`]: 'Nossa Senhora Aparecida',
-    [`${year}-11-02`]: 'Finados',
-    [`${year}-11-15`]: 'Proclamação da República',
-    [`${year}-11-20`]: 'Dia da Consciência Negra',
+    [`${year}-09-07`]: 'Independência do Brasil 🇧🇷',
+    [`${year}-10-12`]: 'Nossa Senhora Aparecida 👸🏾',
+    [`${year}-11-02`]: 'Finados 🪦',
+    [`${year}-11-15`]: 'Proclamação da República🫡',
+    [`${year}-11-20`]: 'Dia da Consciência Negra ✊🏿',
     [`${year}-12-25`]: 'Natal 🎅',
       };
 
@@ -328,4 +328,3 @@ function gerarRelatorioSemana() {
   html += "</ul>";
   document.getElementById("relatorio-conteudo").innerHTML = html;
 }
-
