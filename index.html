@@ -19,9 +19,7 @@
   <h1>Agenda</h1>
   <div class="controls">
     <button onclick="changeMonth(-1)">← Anterior</button>
-    
     <button onclick="goToToday()" class="btn-today">Hoje</button>
-    
     <span id="month-year"></span>
     <button onclick="changeMonth(1)">Próximo →</button>
     <button onclick="abrirRelatorio()">Relatório</button>
@@ -35,13 +33,27 @@
 <div id="event-modal" class="modal hidden">
   <div class="modal-content">
     <span id="close-modal" class="close">&times;</span>
-    <h2 id="modal-title-label">Adicionar / Editar Evento</h2>
+    <h2 id="modal-title-label">Evento</h2>
+    
     <form id="modal-event-form">
       <input type="hidden" id="modal-event-id">
-      <input type="date" id="modal-event-date" required readonly>
-      <input type="text" id="modal-event-title" placeholder="Título (Ex: Viagem, Recesso...)" required>
-      <input type="text" id="modal-event-desc" placeholder="Descrição" required>
-      <button type="submit">Salvar</button>
+      
+      <div class="form-group">
+        <label for="modal-event-date">Data:</label>
+        <input type="date" id="modal-event-date" required readonly>
+      </div>
+
+      <div class="form-group">
+        <label for="modal-event-title">Título:</label>
+        <input type="text" id="modal-event-title" placeholder="Ex: Viagem, Recesso..." required>
+      </div>
+
+      <div class="form-group">
+        <label for="modal-event-desc">Descrição <span class="optional">(Opcional)</span>:</label>
+        <input type="text" id="modal-event-desc" placeholder="Detalhes do evento">
+      </div>
+
+      <button type="submit" class="btn-save">Salvar Evento</button>
     </form>
   </div>
 </div>
@@ -57,6 +69,8 @@
     </div>
 
     <div id="relatorio-conteudo"></div>
+
+    <button onclick="copiarRelatorio()" class="btn-copy">📋 Copiar Texto</button>
   </div>
 </div>
 
