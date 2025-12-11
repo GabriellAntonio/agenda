@@ -1,10 +1,11 @@
-/* Fundo geral com degradê azul */
+/* Fundo geral com degradê azul suave */
 body {
   font-family: Arial, sans-serif;
   margin: 20px;
   background: linear-gradient(to bottom right, #0a3d62, #74b9ff);
   color: #fff;
 }
+
 
 /* Título centralizado */
 h1 {
@@ -20,296 +21,234 @@ h1 {
   margin-bottom: 20px;
 }
 
-/* Navegação */
+/* Navegação e Botões */
 .controls {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 20px;
-  margin: 0;
-  /* margin-left: 175px; <--- Se quiser manter seu ajuste manual, mantenha. Caso contrário, o justify-content: center já centraliza. */
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.2); /* Fundo sutil para agrupar os botões */
+  padding: 10px 20px;
+  border-radius: 50px; /* Bordas arredondadas no menu */
+}
+
+.controls span#month-year {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0 15px;
+  min-width: 150px; /* Garante espaço fixo para o mês não pular */
+  text-align: center;
 }
 
 .controls button {
-  padding: 8px 12px;
+  padding: 8px 16px;
   border: none;
-  border-radius: 6px;
-  background: #0984e3;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
   color: white;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.2s;
 }
 
 .controls button:hover {
-  background: #74b9ff;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.controls .btn-today {
+  background-color: #e17055; /* Laranja para destaque */
 }
 
 /* Grade do calendário */
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-  margin: 20px 0;
+  gap: 8px; /* Espaço um pouco maior entre dias */
+  margin: 0 auto;
+  max-width: 1400px;
 }
 
-/* Cabeçalho dos dias */
+/* Cabeçalho dos dias (DOM, SEG...) */
 .day-header {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   font-weight: bold;
   text-align: center;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
 }
 
 /* Dia padrão */
 .day {
   background: rgba(255, 255, 255, 0.1);
-  padding: 10px;
+  padding: 8px;
   border-radius: 8px;
-  min-height: 80px;
+  min-height: 110px; /* Altura mínima garantida */
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   position: relative;
-  cursor: pointer;
-  transition: background 0.3s;
+  transition: transform 0.2s;
+  border: 1px solid rgba(255,255,255,0.05);
 }
 
 .day:hover {
   background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  z-index: 5;
 }
 
-/* Data no canto superior */
+/* Número da Data */
 .date {
   font-weight: bold;
-  font-size: 16px;
-  margin-bottom: 5px;
+  font-size: 14px;
+  align-self: flex-end; /* Canto superior direito */
+  margin-bottom: 2px;
+  opacity: 0.7;
 }
 
-/* -- ESTILOS ESPECIAIS PARA DIAS -- */
-
+/* -- ESTILOS ESPECIAIS -- */
 .today {
-  background-color: #8fdff7 !important; /* Verde água / Azul claro */
-  color: #000 !important;
+  background-color: rgba(143, 223, 247, 0.2) !important; /* Azul bem clarinho transparente */
+  border: 2px solid #00cec9; /* Borda destaque */
 }
 
-/* A classe .holiday agora serve para Feriados e Vésperas */
+/* Feriado (Fundo Vermelho) */
 .holiday {
-  background-color: #ff4d4d !important; /* Vermelho */
-  color: #fff !important;
+  background-color: rgba(231, 76, 60, 0.85) !important; /* Vermelho bonito */
 }
 
-/* Adicionado: Estilo para o nome do feriado/véspera */
+/* CORREÇÃO: Nome do feriado sem fundo cinza feio */
 .feriado-nome {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: bold;
-  margin-bottom: 5px;
+  text-align: right; /* Alinha com a data */
   color: #fff;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+  margin-top: -18px; /* Puxa para cima para ficar ao lado da data */
+  margin-right: 25px; /* Não encavalar na data */
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  opacity: 0.9;
 }
-
-/* -- FIM ESTILOS ESPECIAIS -- */
-
 
 /* Evento */
 .event {
-  background: rgba(255, 255, 255, 0.3);
+  background: #f1f2f6;
+  color: #2d3436;
   padding: 5px;
-  margin: 4px 0;
-  border-radius: 5px;
-  font-size: 14px;
-  color: #fff;
+  border-radius: 4px;
+  font-size: 11px;
   position: relative;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 2px;
+  display: flex;
+  flex-direction: column; /* Permite que o texto cresça para baixo */
 }
 
 .event.done {
-  background-color: #b9fbc0 !important; /* Verde claro */
-  color: #000;
+  background-color: #b9fbc0;
+  color: #555;
+  text-decoration: line-through;
+  opacity: 0.7;
 }
 
-.event input[type="checkbox"] {
-  accent-color: #00ff6a;
+/* Checkbox e Texto */
+.event label {
+  display: flex;
+  align-items: flex-start; /* Alinha checkbox ao topo se o texto quebrar */
+  gap: 6px;
   cursor: pointer;
+  width: 100%;
 }
 
-/* Ações de editar e deletar */
+/* CORREÇÃO: Texto quebra linha em vez de cortar com ... */
+.event-text {
+  white-space: normal; /* Permite quebra de linha */
+  line-height: 1.2;
+  word-wrap: break-word;
+}
+
+/* Botões de editar/excluir (ficam discretos no rodapé do evento) */
 .actions {
-  position: absolute;
-  top: 5px;
-  right: 5px;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+  gap: 5px;
 }
 
 .actions button {
   background: none;
   border: none;
   cursor: pointer;
-  color: #fff;
-  font-size: 14px;
+  font-size: 10px;
+  color: #636e72;
+  padding: 0;
+}
+.actions button:hover {
+  color: #d63031;
+  transform: scale(1.2);
 }
 
-/* Lista de eventos (abaixo do calendário) */
-#event-list {
-  margin-top: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 10px;
-  border-radius: 10px;
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
+.loading-overlay.hidden { display: none; }
+.spinner {
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top: 4px solid #00cec9;
+  border-radius: 50%;
+  width: 40px; height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+  color: white;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
 
-/* --- MODAIS --- */
-
+/* Modais (popups) */
 .modal {
   position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(4px);
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 1000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.1s ease;
+  background: rgba(0,0,0,0.6);
+  z-index: 3000;
 }
-
-.modal:not(.hidden) {
-  opacity: 1;
-  pointer-events: all;
-}
+.modal.hidden { display: none; }
 
 .modal-content {
-  background: #f8f9fa;
-  color: #2d3436;
-  padding: 25px;
-  border-radius: 16px;
-  width: 95%;
-  max-width: 420px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  background: #fff;
+  color: #333;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
   position: relative;
-  animation: fadeInUp 0.1s ease;
 }
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.modal-content h2 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 1.5rem;
-}
-
-.modal-content form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.modal-content input[type="text"],
-.modal-content input[type="date"] {
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  outline: none;
-  transition: border 0.2s;
-}
-
-.modal-content input:focus {
-  border-color: #0984e3;
-}
-
-.modal-content button[type="submit"] {
-  margin-top: 10px;
-  padding: 10px;
-  background: #0984e3;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.modal-content button[type="submit"]:hover {
-  background: #74b9ff;
-}
-
-/* Botão de fechar modal */
 .close {
   position: absolute;
-  top: 12px;
-  right: 16px;
-  font-size: 22px;
-  background: none;
-  border: none;
-  color: #333;
+  top: 10px;
+  right: 15px;
+  font-size: 20px;
   cursor: pointer;
-  transition: transform 0.2s ease;
 }
 
-.close:hover {
-  transform: scale(1.2);
-  color: #000;
-}
-
-/* Controles do Relatório */
-.relatorio-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.relatorio-controls button {
-  padding: 6px 10px;
-  border: none;
-  border-radius: 6px;
-  background: #0984e3;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.relatorio-controls button:hover {
-  background: #74b9ff;
-}
-
-/* Formulário de evento na página (se for reativado no futuro) */
-#event-form {
-  background: rgba(255, 255, 255, 0.15);
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 20px;
-  color: #fff;
-}
-
-#event-form input {
-  display: block;
-  margin: 10px 0;
-  padding: 8px;
-  width: 100%;
-  border-radius: 5px;
-  border: none;
-}
-
-#event-form button {
-  padding: 10px 20px;
-  background: #00cec9;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-#event-form button:hover {
-  background: #81ecec;
+/* Responsividade Celular */
+@media (max-width: 768px) {
+  .calendar { gap: 2px; }
+  .day { min-height: 60px; padding: 2px; }
+  .day-header { font-size: 0.7rem; padding: 5px; }
+  .feriado-nome { font-size: 0.6rem; margin-top: 0; margin-right: 0; text-align: center; }
+  .event-text { font-size: 9px; }
+  .controls span#month-year { font-size: 1rem; min-width: auto; margin: 0 5px; }
 }
