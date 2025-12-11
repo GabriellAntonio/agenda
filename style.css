@@ -1,19 +1,22 @@
-/* Fundo geral com degradê azul suave */
+/* 1. BODY ATUALIZADO (Fonte moderna Segoe UI/Roboto e melhor renderização) */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   margin: 20px;
   background: linear-gradient(to bottom right, #0a3d62, #74b9ff);
   color: #fff;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-
-/* Título centralizado */
+/* 2. TÍTULOS E CABEÇALHO */
 h1 {
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-shadow: 2px 2px 10px rgba(0,0,0,0.2);
 }
 
-/* Container do cabeçalho */
 .header-container {
   display: flex;
   flex-direction: column;
@@ -21,28 +24,30 @@ h1 {
   margin-bottom: 20px;
 }
 
-/* Navegação e Botões */
+/* 3. CONTROLES DE NAVEGAÇÃO */
 .controls {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  background: rgba(0, 0, 0, 0.2); /* Fundo sutil para agrupar os botões */
+  background: rgba(0, 0, 0, 0.2);
   padding: 10px 20px;
-  border-radius: 50px; /* Bordas arredondadas no menu */
+  border-radius: 50px;
 }
 
 .controls span#month-year {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: bold;
   margin: 0 15px;
-  min-width: 150px; /* Garante espaço fixo para o mês não pular */
+  min-width: 160px;
   text-align: center;
 }
 
 .controls button {
-  padding: 8px 16px;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.95rem;
+  padding: 10px 18px;
   border: none;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.2);
@@ -57,36 +62,34 @@ h1 {
 }
 
 .controls .btn-today {
-  background-color: #e17055; /* Laranja para destaque */
+  background-color: #e17055;
 }
 
-/* Grade do calendário */
+/* 4. CALENDÁRIO */
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px; /* Espaço um pouco maior entre dias */
+  gap: 6px; /* Espaço ajustado */
   margin: 0 auto;
   max-width: 1400px;
 }
 
-/* Cabeçalho dos dias (DOM, SEG...) */
 .day-header {
   background: rgba(255, 255, 255, 0.15);
-  font-weight: bold;
+  font-weight: 800;
   text-align: center;
-  padding: 10px;
+  padding: 12px;
   border-radius: 6px;
   text-transform: uppercase;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   letter-spacing: 1px;
 }
 
-/* Dia padrão */
 .day {
   background: rgba(255, 255, 255, 0.1);
-  padding: 8px;
+  padding: 6px;
   border-radius: 8px;
-  min-height: 110px; /* Altura mínima garantida */
+  min-height: 85px; /* Altura ajustada para não ficar esticado */
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -101,88 +104,86 @@ h1 {
   z-index: 5;
 }
 
-/* Número da Data */
 .date {
   font-weight: bold;
-  font-size: 14px;
-  align-self: flex-end; /* Canto superior direito */
-  margin-bottom: 2px;
-  opacity: 0.7;
-}
-
-/* -- ESTILOS ESPECIAIS -- */
-.today {
-  background-color: rgba(143, 223, 247, 0.2) !important; /* Azul bem clarinho transparente */
-  border: 2px solid #00cec9; /* Borda destaque */
-}
-
-/* Feriado (Fundo Vermelho) */
-.holiday {
-  background-color: rgba(231, 76, 60, 0.85) !important; /* Vermelho bonito */
-}
-
-/* CORREÇÃO: Nome do feriado sem fundo cinza feio */
-.feriado-nome {
-  font-size: 0.75rem;
-  font-weight: bold;
-  text-align: right; /* Alinha com a data */
-  color: #fff;
-  margin-top: -18px; /* Puxa para cima para ficar ao lado da data */
-  margin-right: 25px; /* Não encavalar na data */
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  font-size: 16px;
+  align-self: flex-end;
+  margin-bottom: 0;
   opacity: 0.9;
 }
 
-/* Evento */
+/* --- ESTILOS ESPECIAIS (Feriados e Hoje) --- */
+
+.today {
+  background-color: rgba(143, 223, 247, 0.2) !important;
+  border: 2px solid #00cec9;
+}
+
+/* COR DO FERIADO ALTERADA AQUI */
+.holiday {
+  background-color: #f01f1f !important; /* Vermelho Puro solicitado */
+  color: #fff !important;
+}
+
+.feriado-nome {
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-align: right;
+  color: #fff;
+  margin-top: -20px;
+  margin-right: 30px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  opacity: 1;
+}
+
+/* 5. EVENTOS */
 .event {
   background: #f1f2f6;
   color: #2d3436;
-  padding: 5px;
-  border-radius: 4px;
-  font-size: 11px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px; /* Fonte maior */
+  font-weight: 500;
   position: relative;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  margin-bottom: 2px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  margin-bottom: 4px;
   display: flex;
-  flex-direction: column; /* Permite que o texto cresça para baixo */
+  flex-direction: column;
 }
 
 .event.done {
   background-color: #b9fbc0;
   color: #555;
   text-decoration: line-through;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
-/* Checkbox e Texto */
 .event label {
   display: flex;
-  align-items: flex-start; /* Alinha checkbox ao topo se o texto quebrar */
-  gap: 6px;
+  align-items: flex-start;
+  gap: 8px;
   cursor: pointer;
   width: 100%;
 }
 
-/* CORREÇÃO: Texto quebra linha em vez de cortar com ... */
 .event-text {
-  white-space: normal; /* Permite quebra de linha */
-  line-height: 1.2;
+  white-space: normal;
+  line-height: 1.3;
   word-wrap: break-word;
 }
 
-/* Botões de editar/excluir (ficam discretos no rodapé do evento) */
 .actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 4px;
-  gap: 5px;
+  margin-top: 5px;
+  gap: 8px;
 }
 
 .actions button {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 10px;
+  font-size: 12px;
   color: #636e72;
   padding: 0;
 }
@@ -191,7 +192,15 @@ h1 {
   transform: scale(1.2);
 }
 
-/* Loading Overlay */
+.more-events {
+  font-size: 11px;
+  text-align: center;
+  color: #eee;
+  font-style: italic;
+  margin-top: auto;
+}
+
+/* Loading */
 .loading-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -214,7 +223,7 @@ h1 {
 }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
-/* Modais (popups) */
+/* 6. MODAIS E FORMULÁRIOS */
 .modal {
   position: fixed;
   inset: 0;
@@ -229,26 +238,167 @@ h1 {
 .modal-content {
   background: #fff;
   color: #333;
-  padding: 20px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 400px;
+  padding: 30px;
+  border-radius: 12px;
+  width: 95%;
+  max-width: 450px;
   position: relative;
-}
-.close {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 20px;
-  cursor: pointer;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
 }
 
-/* Responsividade Celular */
+.modal-content h2 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 25px;
+  color: #0984e3;
+  font-size: 1.8rem;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  gap: 6px;
+}
+
+.form-group label {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #2d3436;
+}
+
+.form-group .optional {
+  font-weight: normal;
+  font-size: 0.85rem;
+  color: #b2bec3;
+}
+
+/* Inputs Grandes */
+.modal-content input[type="text"],
+.modal-content input[type="date"] {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 1.1rem;
+  font-family: 'Segoe UI', sans-serif;
+  border: 2px solid #dfe6e9;
+  border-radius: 8px;
+  outline: none;
+  background-color: #fff;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  box-sizing: border-box;
+}
+
+.modal-content input:focus {
+  border-color: #0984e3;
+  box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.1);
+}
+
+#modal-event-date[readonly] {
+  background-color: #f1f2f6;
+  color: #636e72;
+  cursor: not-allowed;
+  border-color: #ecf0f1;
+}
+
+::placeholder {
+  color: #b2bec3;
+}
+
+.btn-save {
+  margin-top: 15px;
+  padding: 14px;
+  background: #00b894;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-save:hover {
+  background: #00a884;
+  transform: translateY(-2px);
+}
+
+.close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #b2bec3;
+  transition: color 0.2s;
+}
+.close:hover { color: #2d3436; }
+
+/* RELATÓRIO */
+.relatorio-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.relatorio-controls button {
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 8px;
+  background: #0984e3;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.relatorio-controls button:hover {
+  background: #74b9ff;
+}
+
+.btn-copy {
+  margin-top: 20px;
+  width: 100%;
+  padding: 14px;
+  background-color: #6c5ce7;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background 0.3s, transform 0.2s;
+}
+.btn-copy:hover {
+  background-color: #5f27cd;
+  transform: translateY(-2px);
+}
+.btn-copy:active {
+  transform: translateY(0);
+}
+
+/* Responsividade */
 @media (max-width: 768px) {
-  .calendar { gap: 2px; }
-  .day { min-height: 60px; padding: 2px; }
-  .day-header { font-size: 0.7rem; padding: 5px; }
-  .feriado-nome { font-size: 0.6rem; margin-top: 0; margin-right: 0; text-align: center; }
-  .event-text { font-size: 9px; }
-  .controls span#month-year { font-size: 1rem; min-width: auto; margin: 0 5px; }
+  .calendar { gap: 4px; }
+  .day { min-height: 80px; padding: 4px; }
+  .day-header { font-size: 0.75rem; padding: 8px; }
+  .feriado-nome { font-size: 0.65rem; margin-top: -15px; margin-right: 5px; }
+  .event { font-size: 11px; padding: 4px; }
+  .controls span#month-year { font-size: 1.1rem; min-width: auto; margin: 0 10px; }
+  .header-container h1 { font-size: 2rem; }
 }
