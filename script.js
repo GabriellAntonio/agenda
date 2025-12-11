@@ -86,8 +86,10 @@ function loadCalendar() {
   }
 
   const today = new Date();
+  
+  // Feriados fixos (mantidos)
   const feriadosFixos = {
-    [`${year}-01-01`]: 'Ano Novo 🎆',
+    [`${year}-01-01`]: 'Ano Novo 🥂',
     [`${year}-04-21`]: 'Tiradentes 🫡',
     [`${year}-05-01`]: 'Dia do Trabalho',
     [`${year}-09-07`]: 'Independência do Brasil 🇧🇷',
@@ -98,22 +100,12 @@ function loadCalendar() {
     [`${year}-12-25`]: 'Natal 🎅',
   };
 
-  // --- LÓGICA DE VÉSPERAS (AUTOMÁTICAS) ---
-  const vesperas = {};
-  Object.keys(feriadosFixos).forEach(dataFeriado => {
-    const [anoF, mesF, diaF] = dataFeriado.split('-').map(Number);
-    const feriadoDate = new Date(anoF, mesF - 1, diaF);
-    
-    const vesperaDate = new Date(feriadoDate);
-    vesperaDate.setDate(feriadoDate.getDate() - 1);
-
-    const anoV = vesperaDate.getFullYear();
-    const mesV = (vesperaDate.getMonth() + 1).toString().padStart(2, '0');
-    const diaV = vesperaDate.getDate().toString().padStart(2, '0');
-    const dataVesperaStr = `${anoV}-${mesV}-${diaV}`;
-
-    vesperas[dataVesperaStr] = `Véspera de ${feriadosFixos[dataFeriado]}`;
-  });
+  // --- LÓGICA DE VÉSPERAS (Somente Natal e Ano Novo) ---
+  // Removido o loop automático e definido manualmente:
+  const vesperas = {
+    [`${year}-12-24`]: 'Véspera de Natal 🎄',
+    [`${year}-12-31`]: 'Véspera de Ano Novo 🥂'
+  };
 
   for (let day = 1; day <= daysInMonth; day++) {
     const monthStr = (month + 1).toString().padStart(2, '0');
@@ -137,7 +129,7 @@ function loadCalendar() {
       dayEl.appendChild(feriadoEl);
       dayEl.classList.add('holiday');
     }
-    // 2. Verifica Véspera Fixa
+    // 2. Verifica Véspera (Natal e Ano Novo apenas)
     else if (vesperas[dateStr]) {
       const vesperaEl = document.createElement('div');
       vesperaEl.className = 'feriado-nome';
@@ -149,7 +141,6 @@ function loadCalendar() {
     // 3. Verifica Eventos e "Recessos" Manuais
     if (events[dateStr]) {
       
-      // -- NOVA LÓGICA AQUI --
       // Verifica se algum evento do dia tem "Recesso" no título ou descrição
       const temRecessoManual = events[dateStr].some(ev => 
         (ev.title && ev.title.toLowerCase().includes('recesso')) || 
@@ -159,7 +150,6 @@ function loadCalendar() {
       if (temRecessoManual) {
         dayEl.classList.add('holiday'); // Pinta o dia de vermelho
       }
-      // ----------------------
 
       events[dateStr].forEach((ev) => {
         const evEl = document.createElement('div');
