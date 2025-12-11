@@ -6,10 +6,43 @@ body {
   color: #fff;
 }
 
-/* Título centralizado (ajuste de margem) */
+/* Título centralizado */
 h1 {
   text-align: center;
-  margin-bottom: 10px; /* Reduz o espaço abaixo do título */
+  margin-bottom: 10px;
+}
+
+/* Container do cabeçalho */
+.header-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Navegação */
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin: 0;
+  /* margin-left: 175px; <--- Se quiser manter seu ajuste manual, mantenha. Caso contrário, o justify-content: center já centraliza. */
+}
+
+.controls button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #0984e3;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.controls button:hover {
+  background: #74b9ff;
 }
 
 /* Grade do calendário */
@@ -51,6 +84,31 @@ h1 {
   margin-bottom: 5px;
 }
 
+/* -- ESTILOS ESPECIAIS PARA DIAS -- */
+
+.today {
+  background-color: #8fdff7 !important; /* Verde água / Azul claro */
+  color: #000 !important;
+}
+
+/* A classe .holiday agora serve para Feriados e Vésperas */
+.holiday {
+  background-color: #ff4d4d !important; /* Vermelho */
+  color: #fff !important;
+}
+
+/* Adicionado: Estilo para o nome do feriado/véspera */
+.feriado-nome {
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+/* -- FIM ESTILOS ESPECIAIS -- */
+
+
 /* Evento */
 .event {
   background: rgba(255, 255, 255, 0.3);
@@ -60,6 +118,16 @@ h1 {
   font-size: 14px;
   color: #fff;
   position: relative;
+}
+
+.event.done {
+  background-color: #b9fbc0 !important; /* Verde claro */
+  color: #000;
+}
+
+.event input[type="checkbox"] {
+  accent-color: #00ff6a;
+  cursor: pointer;
 }
 
 /* Ações de editar e deletar */
@@ -77,72 +145,16 @@ h1 {
   font-size: 14px;
 }
 
-/* Navegação (ajuste de margem)*/
-.controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  margin: 0; /* Remove a margem anterior para o container pai controlar */
-  margin-left: 175px; /* <-- Adicione esta linha */
-
-}
-
-.controls button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 6px;
-  background: #0984e3;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.controls button:hover {
-  background: #74b9ff;
-}
-
-/* Formulário de evento */
-#event-form {
-  background: rgba(255, 255, 255, 0.15);
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 20px;
-  color: #fff;
-}
-
-#event-form input {
-  display: block;
-  margin: 10px 0;
-  padding: 8px;
-  width: 100%;
-  border-radius: 5px;
-  border: none;
-}
-
-#event-form button {
-  padding: 10px 20px;
-  background: #00cec9;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-#event-form button:hover {
-  background: #81ecec;
-}
-
-/* Lista de eventos */
+/* Lista de eventos (abaixo do calendário) */
 #event-list {
   margin-top: 20px;
   background: rgba(255, 255, 255, 0.1);
   padding: 10px;
   border-radius: 10px;
 }
+
+/* --- MODAIS --- */
+
 .modal {
   position: fixed;
   inset: 0;
@@ -228,7 +240,7 @@ h1 {
   background: #74b9ff;
 }
 
-/* Botão de fechar */
+/* Botão de fechar modal */
 .close {
   position: absolute;
   top: 12px;
@@ -246,30 +258,7 @@ h1 {
   color: #000;
 }
 
-.today {
-  background-color: #8fdff7 !important; /* Verde limão */
-  color: #000 !important;
-}
-
-.holiday {
-  background-color: #ff4d4d !important; /* Vermelho */
-  color: #fff !important;
-}
-.event input[type="checkbox"] {
-  accent-color: #00ff6a;
-  cursor: pointer;
-}
-.event.done {
-  background-color: #b9fbc0 !important; /* Verde claro */
-  color: #000;
-}
-/* Container do cabeçalho para centralização */
-.header-container {
-  display: flex;
-  flex-direction: column; /* Organiza os itens em coluna (um abaixo do outro) */
-  align-items: center;    /* Centraliza os itens horizontalmente */
-  margin-bottom: 20px;    /* Adiciona um espaço abaixo do cabeçalho */
-}
+/* Controles do Relatório */
 .relatorio-controls {
   display: flex;
   justify-content: space-between;
@@ -292,7 +281,35 @@ h1 {
   background: #74b9ff;
 }
 
+/* Formulário de evento na página (se for reativado no futuro) */
+#event-form {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+  color: #fff;
+}
 
+#event-form input {
+  display: block;
+  margin: 10px 0;
+  padding: 8px;
+  width: 100%;
+  border-radius: 5px;
+  border: none;
+}
 
+#event-form button {
+  padding: 10px 20px;
+  background: #00cec9;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
 
-
+#event-form button:hover {
+  background: #81ecec;
+}
