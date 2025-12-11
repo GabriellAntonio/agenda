@@ -1,4 +1,3 @@
-
 const { createClient } = supabase;
 
 const SUPABASE_URL = 'https://dkbirnicdksacmabxixk.supabase.co';
@@ -6,11 +5,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const calendar = document.getElementById('calendar');
-//const eventForm = document.getElementById('event-form');
-//const eventDateInput = document.getElementById('event-date');
-//const eventTitleInput = document.getElementById('event-title');
-//const eventDescInput = document.getElementById('event-desc');
-//const eventList = document.getElementById('event-list');
+const eventList = document.getElementById('event-list');
 const monthYearLabel = document.getElementById('month-year');
 
 let events = {};
@@ -101,7 +96,24 @@ function loadCalendar() {
     [`${year}-11-15`]: 'Proclamação da República🫡',
     [`${year}-11-20`]: 'Dia da Consciência Negra ✊🏿',
     [`${year}-12-25`]: 'Natal 🎅',
-      };
+  };
+
+  // --- LÓGICA DE VÉSPERAS (AUTOMÁTICAS) ---
+  const vesperas = {};
+  Object.keys(feriadosFixos).forEach(dataFeriado => {
+    const [anoF, mesF, diaF] = dataFeriado.split('-').map(Number);
+    const feriadoDate = new Date(anoF, mesF - 1, diaF);
+    
+    const vesperaDate = new Date(feriadoDate);
+    vesperaDate.setDate(feriadoDate.getDate() - 1);
+
+    const anoV = vesperaDate.getFullYear();
+    const mesV = (vesperaDate.getMonth() + 1).toString().padStart(2, '0');
+    const diaV = vesperaDate.getDate().toString().padStart(2, '0');
+    const dataVesperaStr = `${anoV}-${mesV}-${diaV}`;
+
+    vesperas[dataVesperaStr] = `Véspera de ${feriadosFixos[dataFeriado]}`;
+  });
 
   for (let day = 1; day <= daysInMonth; day++) {
     const monthStr = (month + 1).toString().padStart(2, '0');
@@ -117,6 +129,7 @@ function loadCalendar() {
     dateDiv.innerText = day;
     dayEl.appendChild(dateDiv);
 
+    // 1. Verifica Feriado Fixo
     if (feriadosFixos[dateStr]) {
       const feriadoEl = document.createElement('div');
       feriadoEl.className = 'feriado-nome';
@@ -124,78 +137,95 @@ function loadCalendar() {
       dayEl.appendChild(feriadoEl);
       dayEl.classList.add('holiday');
     }
+    // 2. Verifica Véspera Fixa
+    else if (vesperas[dateStr]) {
+      const vesperaEl = document.createElement('div');
+      vesperaEl.className = 'feriado-nome';
+      vesperaEl.innerText = vesperas[dateStr];
+      dayEl.appendChild(vesperaEl);
+      dayEl.classList.add('holiday');
+    }
+
+    // 3. Verifica Eventos e "Recessos" Manuais
+    if (events[dateStr]) {
+      
+      // -- NOVA LÓGICA AQUI --
+      // Verifica se algum evento do dia tem "Recesso" no título ou descrição
+      const temRecessoManual = events[dateStr].some(ev => 
+        (ev.title && ev.title.toLowerCase().includes('recesso')) || 
+        (ev.desc && ev.desc.toLowerCase().includes('recesso'))
+      );
+
+      if (temRecessoManual) {
+        dayEl.classList.add('holiday'); // Pinta o dia de vermelho
+      }
+      // ----------------------
+
+      events[dateStr].forEach((ev) => {
+        const evEl = document.createElement('div');
+        
+        const eventDate = new Date(dateStr);
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+        const isPast = eventDate < hoje;
+        const isDone = ev.done;
+
+        let eventClass = 'event';
+        let textDecoration = 'none';
+        let bgColor = '';
+
+        if (isDone) {
+          eventClass += ' done';
+          textDecoration = 'line-through';
+        } else if (isPast && !isDone) {
+          bgColor = 'background-color: #ffcccc !important;'; 
+          textDecoration = 'line-through';
+        }
+
+        evEl.className = eventClass;
+
+        evEl.innerHTML = `
+          <label style="display: flex; align-items: center; gap: 5px; ${bgColor}">
+            <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleDone('${ev.id}', this.checked)">
+            <span style="text-decoration: ${textDecoration};">${ev.title}</span>
+          </label>
+          <div class="actions">
+            <button onclick="editEvent('${ev.id}', '${encodeURIComponent(ev.title)}', '${encodeURIComponent(ev.desc)}', '${dateStr}')">✏️</button>
+            <button onclick="deleteEvent('${ev.id}')">🗑️</button>
+          </div>
+        `;
+
+        evEl.addEventListener("click", (e) => {
+          if (e.target.tagName !== "BUTTON" && e.target.type !== "checkbox") {
+            openEventModal({
+              title: ev.title,
+              description: ev.desc,
+              date: dateStr
+            });
+          }
+        });
+
+        dayEl.appendChild(evEl);
+      });
+    }
 
     if (today.toDateString() === new Date(year, month, day).toDateString()) {
       dayEl.classList.add('today');
     }
 
-    if (events[dateStr]) {
-  events[dateStr].forEach((ev) => {
-    const evEl = document.createElement('div');
-    
-    const eventDate = new Date(dateStr);
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-    const isPast = eventDate < hoje;
-    const isDone = ev.done;
-
-    let eventClass = 'event';
-    let textDecoration = 'none';
-    let bgColor = '';
-
-    if (isDone) {
-      eventClass += ' done';
-      textDecoration = 'line-through';
-    } else if (isPast && !isDone) {
-      bgColor = 'background-color: #ffcccc !important;'; // vermelho claro
-      textDecoration = 'line-through';
-    }
-
-    evEl.className = eventClass;
-
-    evEl.innerHTML = `
-      <label style="display: flex; align-items: center; gap: 5px; ${bgColor}">
-        <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleDone('${ev.id}', this.checked)">
-        <span style="text-decoration: ${textDecoration};">${ev.title}</span>
-      </label>
-      <div class="actions">
-        <button onclick="editEvent('${ev.id}', '${encodeURIComponent(ev.title)}', '${encodeURIComponent(ev.desc)}', '${dateStr}')">✏️</button>
-        <button onclick="deleteEvent('${ev.id}')">🗑️</button>
-      </div>
-    `;
-
-    evEl.addEventListener("click", (e) => {
-      if (e.target.tagName !== "BUTTON" && e.target.type !== "checkbox") {
-        openEventModal({
-          title: ev.title,
-          description: ev.desc,
-          date: dateStr
-        });
-      }
-    });
-
-    dayEl.appendChild(evEl);
-  });
-}
-
-
     dayEl.onclick = (e) => {
-  const hasEvent = events[dateStr] && events[dateStr].length > 0;
-  
-  // Evita abrir modal se clicou em cima de um evento
-  if (e.target.closest('.event')) return;
-
-  openEventModalEdit({
-    date: dateStr
-  });
-};
-
+      if (e.target.closest('.event')) return;
+      openEventModalEdit({
+        date: dateStr
+      });
+    };
 
     calendar.appendChild(dayEl);
   }
 }
 
 function loadEventList(date) {
+  if (!eventList) return; 
   eventList.innerHTML = '';
   const evs = events[date] || [];
   if (evs.length === 0) {
@@ -208,6 +238,7 @@ function loadEventList(date) {
     });
   }
 }
+
 function formatarDataBrasileira(dataISO) {
   const [ano, mes, dia] = dataISO.split('-');
   return `${dia}/${mes}/${ano}`;
@@ -222,42 +253,16 @@ window.editEvent = function(id, title, desc, date) {
   });
 };
 
-
 window.changeMonth = function(offset) {
   currentDate.setMonth(currentDate.getMonth() + offset);
   loadCalendar();
 };
 
-//eventForm.onsubmit = async (e) => {
-//  e.preventDefault();
-//  const date = eventDateInput.value;
-//  const title = eventTitleInput.value;
-//  const desc = eventDescInput.value;
-//
- // if (editingEventId) {
-//    await updateEvent(editingEventId, title, desc);
-//    editingEventId = null;
-//  } else {
-//    await addEvent(date, title, desc);
- // }
-
- // eventForm.reset();
-//};
-
 fetchEvents();
 
-//function openEventModal(event) {
-//  const modal = document.getElementById("event-modal");
- // const title = document.getElementById("modal-title");
- // const date = document.getElementById("modal-date");
- // const description = document.getElementById("modal-description");
-//
-//  title.textContent = event.title;
-//  date.textContent = `Data: ${formatarDataBrasileira(event.date)}`;
-//  description.textContent = event.description || "Sem descrição";
-//
-//  modal.classList.remove("hidden");
-//}
+function openEventModal(event) {
+  editEvent(null, event.title, event.description, event.date);
+}
 
 document.getElementById("close-modal").addEventListener("click", () => {
   document.getElementById("event-modal").classList.add("hidden");
@@ -266,8 +271,10 @@ document.getElementById("close-modal").addEventListener("click", () => {
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     document.getElementById("event-modal").classList.add("hidden");
+    document.getElementById("relatorio-modal").classList.add("hidden");
   }
 });
+
 document.getElementById("modal-event-form").addEventListener("submit", async function (e) {
   e.preventDefault();
 
@@ -285,8 +292,8 @@ document.getElementById("modal-event-form").addEventListener("submit", async fun
   document.getElementById("modal-event-form").reset();
   document.getElementById("event-modal").classList.add("hidden");
 });
+
 function abrirRelatorio() {
-  // Reseta a data para a semana atual toda vez que abrir o modal
   relatorioDataReferencia = new Date(); 
   gerarRelatorioSemana(); 
   document.getElementById("relatorio-modal").classList.remove("hidden");
@@ -295,13 +302,13 @@ function abrirRelatorio() {
 document.getElementById("close-relatorio").addEventListener("click", () => {
   document.getElementById("relatorio-modal").classList.add("hidden");
 });
+
 function mudarSemanaRelatorio(offset) {
   relatorioDataReferencia.setDate(relatorioDataReferencia.getDate() + offset);
   gerarRelatorioSemana();
 }
 
 function gerarRelatorioSemana() {
-  // Usa a data de referência em vez de sempre usar a data de hoje
   const inicioSemana = new Date(relatorioDataReferencia); 
   inicioSemana.setDate(inicioSemana.getDate() - inicioSemana.getDay()); // Domingo
   const fimSemana = new Date(inicioSemana);
