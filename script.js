@@ -7,22 +7,18 @@ const client = createClient(SUPABASE_URL, SUPABASE_KEY);
 const calendar = document.getElementById('calendar');
 const eventList = document.getElementById('event-list');
 const monthYearLabel = document.getElementById('month-year');
-const loadingOverlay = document.getElementById('loading-overlay'); // Novo
+const loadingOverlay = document.getElementById('loading-overlay');
 
 let events = {};
 let currentDate = new Date();
 
-// --- FUNÇÕES DE CONTROLE DE LOADING ---
-function showLoading() {
-  if (loadingOverlay) loadingOverlay.classList.remove('hidden');
-}
-function hideLoading() {
-  if (loadingOverlay) loadingOverlay.classList.add('hidden');
-}
+// --- LOADING ---
+function showLoading() { if (loadingOverlay) loadingOverlay.classList.remove('hidden'); }
+function hideLoading() { if (loadingOverlay) loadingOverlay.classList.add('hidden'); }
 
 // --- BANCO DE DADOS ---
 async function fetchEvents() {
-  showLoading(); // Mostra spinner
+  showLoading();
   const { data, error } = await client.from('events').select('*');
   
   if (!error) {
@@ -40,7 +36,7 @@ async function fetchEvents() {
   } else {
     console.error("Erro ao buscar eventos:", error);
   }
-  hideLoading(); // Esconde spinner
+  hideLoading();
 }
 
 async function addEvent(date, title, desc) {
@@ -56,22 +52,20 @@ async function updateEvent(id, title, desc) {
 }
 
 async function deleteEvent(id) {
-  if(!confirm("Tem certeza que deseja excluir?")) return; // Confirmação básica
+  if(!confirm("Tem certeza que deseja excluir?")) return;
   showLoading();
   await client.from('events').delete().eq('id', id);
   fetchEvents();
 }
 
 window.toggleDone = async function(id, status) {
-  // Não bloqueia tela para checkbox, mas atualiza visual
   const { error } = await client.from('events').update({ done: status }).eq('id', id);
   if (!error) {
-    // Atualiza localmente para não precisar recarregar tudo
     for (let date in events) {
       const ev = events[date].find(e => e.id == id);
       if (ev) { ev.done = status; break; }
     }
-    loadCalendar(); // Redesenha apenas para aplicar estilos
+    loadCalendar();
   }
 };
 
@@ -94,7 +88,6 @@ function loadCalendar() {
   const month = currentDate.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   
-  // Primeira letra maiúscula no mês
   const monthName = currentDate.toLocaleDateString('pt-BR', { month: 'long' });
   monthYearLabel.innerText = `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${year}`;
 
@@ -110,13 +103,13 @@ function loadCalendar() {
   for (let i = 0; i < firstDay; i++) {
     const empty = document.createElement('div');
     empty.className = 'day';
-    empty.style.background = 'transparent'; // Remove fundo dos dias vazios
+    empty.style.background = 'transparent';
     empty.style.cursor = 'default';
+    empty.style.border = 'none';
     calendar.appendChild(empty);
   }
 
   const today = new Date();
-  
   const feriadosFixos = {
     [`${year}-01-01`]: 'Ano Novo 🥂',
     [`${year}-04-21`]: 'Tiradentes 🫡',
@@ -157,14 +150,14 @@ function loadCalendar() {
 
     // Eventos
     if (events[dateStr]) {
-      // Recesso Manual
+      // Recesso
       const temRecesso = events[dateStr].some(ev => 
         (ev.title && ev.title.toLowerCase().includes('recesso')) || 
         (ev.desc && ev.desc.toLowerCase().includes('recesso'))
       );
       if (temRecesso) dayEl.classList.add('holiday');
 
-      // Limitar visualização a 2 eventos para não estourar o card
+      // Limite de eventos
       const MAX_VISIBLE = 2;
       const dayEvents = events[dateStr];
       
@@ -173,7 +166,6 @@ function loadCalendar() {
         dayEl.appendChild(evEl);
       });
 
-      // Se tiver mais eventos, mostra aviso
       if (dayEvents.length > MAX_VISIBLE) {
         const moreDiv = document.createElement('div');
         moreDiv.className = 'more-events';
@@ -186,7 +178,7 @@ function loadCalendar() {
       dayEl.classList.add('today');
     }
 
-    // Clique no dia (fundo) abre modal para criar
+    // Clique para abrir modal
     dayEl.onclick = (e) => {
       if (e.target.closest('.event') || e.target.closest('input') || e.target.closest('button')) return;
       openEventModalEdit({ date: dateStr });
@@ -206,7 +198,6 @@ function addLabelToDay(element, text, className) {
 
 function createEventElement(ev, dateStr) {
   const evEl = document.createElement('div');
-  
   const eventDate = new Date(dateStr);
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
@@ -221,11 +212,10 @@ function createEventElement(ev, dateStr) {
     eventClass += ' done';
     textDecoration = 'line-through';
   } else if (isPast && !isDone) {
-    bgColor = 'background-color: #fab1a0 !important;'; // Vermelho claro suave
+    bgColor = 'background-color: #fab1a0 !important;'; 
   }
 
   evEl.className = eventClass;
-  // Usando CSS Text-Overflow na classe .event-text
   evEl.innerHTML = `
     <label style="${bgColor}" title="${ev.title}">
       <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleDone('${ev.id}', this.checked)">
@@ -277,7 +267,7 @@ document.getElementById("modal-event-form").addEventListener("submit", async fun
   document.getElementById("event-modal").classList.add("hidden");
 });
 
-// --- RELATÓRIO ---
+// --- RELATÓRIO & COPIAR ---
 let relatorioDataReferencia = new Date();
 
 window.abrirRelatorio = function() {
@@ -319,9 +309,32 @@ function gerarRelatorioSemana() {
   }
   if (!encontrou) html += "<li style='text-align:center; color:#888;'>Nenhum evento nesta semana.</li>";
   html += "</ul>";
-  
   document.getElementById("relatorio-conteudo").innerHTML = html;
 }
+
+// FUNÇÃO NOVA: COPIAR
+window.copiarRelatorio = function() {
+  const container = document.getElementById("relatorio-conteudo");
+  if (!container) return;
+
+  const textoParaCopiar = container.innerText;
+
+  navigator.clipboard.writeText(textoParaCopiar)
+    .then(() => {
+      const btn = document.querySelector('.btn-copy');
+      const textoOriginal = btn.innerHTML;
+      btn.innerHTML = "✅ Copiado com Sucesso!";
+      btn.style.backgroundColor = "#00b894";
+      setTimeout(() => {
+        btn.innerHTML = textoOriginal;
+        btn.style.backgroundColor = "#6c5ce7";
+      }, 2000);
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Erro ao copiar.");
+    });
+};
 
 document.getElementById("close-relatorio").addEventListener("click", () => {
   document.getElementById("relatorio-modal").classList.add("hidden");
