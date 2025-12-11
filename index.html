@@ -9,63 +9,13 @@
   <link rel="icon" type="image/png" href="favicon-32x32.png">
 </head>
 <body>
+
+<div id="loading-overlay" class="loading-overlay hidden">
+  <div class="spinner"></div>
+  <p>Carregando...</p>
+</div>
+
 <div class="header-container">
-  <h1>Agenda</h1>
-  <div class="controls">
-    <button onclick="changeMonth(-1)">← Mês Anterior</button>
-    <span id="month-year"></span>
-    <button onclick="changeMonth(1)">Próximo Mês →</button>
-    <button onclick="abrirRelatorio()">Relatório da Semana</button>
-  </div>
-</div>
-
-<div id="calendar" class="calendar"></div>
-
-
-
-<div id="calendar" class="calendar"></div>
-
-
-
-<!--  <form id="event-form">
-    <h2>Adicionar / Editar Evento</h2>
-     <input type="date" id="event-date" required>
-    <input type="text" id="event-title" placeholder="Título" required>
-   <input type="text" id="event-desc" placeholder="Descrição" required>
-   <button type="submit">Salvar</button>
-  </form> -->
-
-  <div id="event-list"></div>
-
-<!-- Modal de evento (edição e criação) -->
-<div id="event-modal" class="modal hidden">
-  <div class="modal-content">
-    <span id="close-modal" class="close">&times;</span>
-    <h2 id="modal-title-label">Adicionar / Editar Evento</h2>
-    <form id="modal-event-form">
-      <input type="hidden" id="modal-event-id">
-      <input type="date" id="modal-event-date" required readonly>
-      <input type="text" id="modal-event-title" placeholder="Título" required>
-      <input type="text" id="modal-event-desc" placeholder="Descrição" required>
-      <button type="submit">Salvar</button>
-    </form>
-  </div>
-</div>
-<div id="relatorio-modal" class="modal hidden">
-  <div class="modal-content">
-    <span id="close-relatorio" class="close">&times;</span>
-    <h2>Relatório da Semana</h2>
-    
-    <div class="relatorio-controls">
-      <button onclick="mudarSemanaRelatorio(-7)">← Semana Anterior</button>
-      <button onclick="mudarSemanaRelatorio(7)">Próxima Semana →</button>
-    </div>
-
-    <div id="relatorio-conteudo">
-      </div>
-  </div>
-</div>
-  <div class="header-container">
   <h1>Agenda</h1>
   <div class="controls">
     <button onclick="changeMonth(-1)">← Anterior</button>
@@ -77,7 +27,39 @@
     <button onclick="abrirRelatorio()">Relatório</button>
   </div>
 </div>
-  <script src="script.js"></script>
+
+<div id="calendar" class="calendar"></div>
+
+<div id="event-list"></div>
+
+<div id="event-modal" class="modal hidden">
+  <div class="modal-content">
+    <span id="close-modal" class="close">&times;</span>
+    <h2 id="modal-title-label">Adicionar / Editar Evento</h2>
+    <form id="modal-event-form">
+      <input type="hidden" id="modal-event-id">
+      <input type="date" id="modal-event-date" required readonly>
+      <input type="text" id="modal-event-title" placeholder="Título (Ex: Viagem, Recesso...)" required>
+      <input type="text" id="modal-event-desc" placeholder="Descrição" required>
+      <button type="submit">Salvar</button>
+    </form>
+  </div>
+</div>
+
+<div id="relatorio-modal" class="modal hidden">
+  <div class="modal-content">
+    <span id="close-relatorio" class="close">&times;</span>
+    <h2>Relatório da Semana</h2>
+    
+    <div class="relatorio-controls">
+      <button onclick="mudarSemanaRelatorio(-7)">← Semana Anterior</button>
+      <button onclick="mudarSemanaRelatorio(7)">Próxima Semana →</button>
+    </div>
+
+    <div id="relatorio-conteudo"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
-
