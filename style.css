@@ -402,3 +402,12 @@ h1 {
   .controls span#month-year { font-size: 1.1rem; min-width: auto; margin: 0 10px; }
   .header-container h1 { font-size: 2rem; }
 }
+/* Dias bloqueados: Feriado ou Recesso */
+.blocked-day {
+  cursor: not-allowed !important;
+}
+
+.blocked-day:hover {
+  transform: none !important;
+  background-color: #f01f1f !important;
+}
