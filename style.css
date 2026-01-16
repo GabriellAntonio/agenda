@@ -446,3 +446,28 @@ h1 {
 }
 .feriado-manual { background-color: #f01f1f !important; color: white; }
 .bloqueado-manual { background-color: #2d3436 !important; color: white; }
+
+.day.drag-over {
+  background-color: rgba(0, 206, 201, 0.3) !important;
+  border: 2px dashed #00cec9 !important;
+  transform: scale(1.02);
+}
+
+/* Cursor de mão ao passar sobre eventos arrastáveis */
+.event {
+  cursor: grab;
+}
+
+.event:active {
+  cursor: grabbing;
+}
+
+/* Cores dos registros manuais conforme solicitado anteriormente */
+.feriado-manual {
+  background-color: #f01f1f !important;
+}
+
+.bloqueado-manual {
+  background-color: #2d3436 !important;
+}
+
