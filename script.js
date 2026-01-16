@@ -5,7 +5,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const calendar = document.getElementById('calendar');
-const eventList = document.getElementById('event-list');
 const monthYearLabel = document.getElementById('month-year');
 const loadingOverlay = document.getElementById('loading-overlay');
 
@@ -29,25 +28,24 @@ async function fetchEvents() {
         id: ev.id,
         title: ev.title,
         desc: ev.description,
-        done: ev.done
+        done: ev.done,
+        type: ev.type || 'normal' // Captura o tipo para pintar o dia
       });
     });
     loadCalendar();
-  } else {
-    console.error("Erro ao buscar eventos:", error);
   }
   hideLoading();
 }
 
-async function addEvent(date, title, desc) {
+async function addEvent(date, title, desc, type) {
   showLoading();
-  await client.from('events').insert({ date, title, description: desc, done: false });
+  await client.from('events').insert({ date, title, description: desc, done: false, type: type });
   fetchEvents();
 }
 
-async function updateEvent(id, title, desc) {
+async function updateEvent(id, title, desc, type) {
   showLoading();
-  await client.from('events').update({ title, description: desc }).eq('id', id);
+  await client.from('events').update({ title, description: desc, type: type }).eq('id', id);
   fetchEvents();
 }
 
@@ -83,7 +81,6 @@ window.goToToday = function() {
 // --- RENDERIZAÇÃO ---
 function loadCalendar() {
   calendar.innerHTML = '';
-
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -104,12 +101,13 @@ function loadCalendar() {
     const empty = document.createElement('div');
     empty.className = 'day';
     empty.style.background = 'transparent';
-    empty.style.cursor = 'default';
     empty.style.border = 'none';
     calendar.appendChild(empty);
   }
 
   const today = new Date();
+
+  // Feriados Fixos
   const feriadosFixos = {
     [`${year}-01-01`]: 'Ano Novo 🥂',
     [`${year}-04-21`]: 'Tiradentes 🫡',
@@ -141,53 +139,44 @@ function loadCalendar() {
     dateDiv.innerText = day;
     dayEl.appendChild(dateDiv);
 
-    // Feriados e Vésperas
+    // Feriados Fixos
     if (feriadosFixos[dateStr]) {
       addLabelToDay(dayEl, feriadosFixos[dateStr], 'holiday');
     } else if (vesperas[dateStr]) {
       addLabelToDay(dayEl, vesperas[dateStr], 'holiday');
     }
 
-    // Eventos
+    // Eventos e Pintura do Dia
     if (events[dateStr]) {
-      // Recesso
-      const temRecesso = events[dateStr].some(ev => 
-        (ev.title && ev.title.toLowerCase().includes('recesso')) || 
-        (ev.desc && ev.desc.toLowerCase().includes('recesso'))
-      );
-      if (temRecesso) dayEl.classList.add('holiday');
-
-      // Limite de eventos
-      const MAX_VISIBLE = 2;
       const dayEvents = events[dateStr];
-      
-      dayEvents.slice(0, MAX_VISIBLE).forEach((ev) => {
-        const evEl = createEventElement(ev, dateStr);
-        dayEl.appendChild(evEl);
+      dayEvents.forEach(ev => {
+        if (ev.type === 'feriado') dayEl.classList.add('feriado-manual');
+        if (ev.type === 'bloqueado') dayEl.classList.add('bloqueado-manual');
       });
 
+      const MAX_VISIBLE = 2;
+      dayEvents.slice(0, MAX_VISIBLE).forEach((ev) => {
+        dayEl.appendChild(createEventElement(ev, dateStr));
+      });
       if (dayEvents.length > MAX_VISIBLE) {
-        const moreDiv = document.createElement('div');
-        moreDiv.className = 'more-events';
-        moreDiv.innerText = `+ ${dayEvents.length - MAX_VISIBLE} evento(s)`;
-        dayEl.appendChild(moreDiv);
+        const more = document.createElement('div');
+        more.className = 'more-events';
+        more.innerText = `+ ${dayEvents.length - MAX_VISIBLE}`;
+        dayEl.appendChild(more);
       }
     }
 
-    if (today.toDateString() === new Date(year, month, day).toDateString()) {
-      dayEl.classList.add('today');
-    }
+    if (today.toDateString() === new Date(year, month, day).toDateString()) dayEl.classList.add('today');
 
-    // Clique para abrir modal
     dayEl.onclick = (e) => {
       if (e.target.closest('.event') || e.target.closest('input') || e.target.closest('button')) return;
       openEventModalEdit({ date: dateStr });
     };
-
     calendar.appendChild(dayEl);
   }
 }
 
+// A FUNÇÃO QUE FALTAVA
 function addLabelToDay(element, text, className) {
   const div = document.createElement('div');
   div.className = 'feriado-nome';
@@ -198,31 +187,15 @@ function addLabelToDay(element, text, className) {
 
 function createEventElement(ev, dateStr) {
   const evEl = document.createElement('div');
-  const eventDate = new Date(dateStr);
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
-  const isPast = eventDate < hoje;
   const isDone = ev.done;
-
-  let eventClass = 'event';
-  let textDecoration = 'none';
-  let bgColor = '';
-
-  if (isDone) {
-    eventClass += ' done';
-    textDecoration = 'line-through';
-  } else if (isPast && !isDone) {
-    bgColor = 'background-color: #fab1a0 !important;'; 
-  }
-
-  evEl.className = eventClass;
+  evEl.className = `event ${isDone ? 'done' : ''}`;
   evEl.innerHTML = `
-    <label style="${bgColor}" title="${ev.title}">
+    <label title="${ev.title}">
       <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleDone('${ev.id}', this.checked)">
-      <span class="event-text" style="text-decoration: ${textDecoration};">${ev.title}</span>
+      <span class="event-text" style="text-decoration: ${isDone ? 'line-through' : 'none'};">${ev.title}</span>
     </label>
     <div class="actions">
-      <button onclick="editEvent('${ev.id}', '${encodeURIComponent(ev.title)}', '${encodeURIComponent(ev.desc)}', '${dateStr}')">✏️</button>
+      <button onclick="editEvent('${ev.id}', '${encodeURIComponent(ev.title)}', '${encodeURIComponent(ev.desc)}', '${dateStr}', '${ev.type}')">✏️</button>
       <button onclick="deleteEvent('${ev.id}')">🗑️</button>
     </div>
   `;
@@ -230,42 +203,61 @@ function createEventElement(ev, dateStr) {
 }
 
 // --- MODAIS ---
-function openEventModalEdit({ id = null, title = "", description = "", date }) {
+function openEventModalEdit({ id = null, title = "", description = "", date, type = "normal" }) {
   document.getElementById("modal-event-id").value = id || "";
   document.getElementById("modal-event-title").value = title;
   document.getElementById("modal-event-desc").value = description;
   document.getElementById("modal-event-date").value = date;
+  document.getElementById("modal-event-type").value = type;
 
   document.getElementById("modal-title-label").textContent = id ? "Editar Evento" : "Adicionar Evento";
   document.getElementById("event-modal").classList.remove("hidden");
 }
 
-window.editEvent = function(id, title, desc, date) {
+window.editEvent = function(id, title, desc, date, type) {
   openEventModalEdit({
     id,
     title: decodeURIComponent(title),
     description: decodeURIComponent(desc),
-    date
+    date,
+    type
   });
 };
 
-document.getElementById("close-modal").addEventListener("click", () => {
-  document.getElementById("event-modal").classList.add("hidden");
-});
-
 document.getElementById("modal-event-form").addEventListener("submit", async function (e) {
   e.preventDefault();
+  
   const id = document.getElementById("modal-event-id").value;
   const date = document.getElementById("modal-event-date").value;
-  const title = document.getElementById("modal-event-title").value;
+  let title = document.getElementById("modal-event-title").value.trim();
   const desc = document.getElementById("modal-event-desc").value;
+  const type = document.getElementById("modal-event-type").value;
 
-  if (id) await updateEvent(id, title, desc);
-  else await addEvent(date, title, desc);
+  // VERIFICAÇÃO DE OBRIGATORIEDADE
+  if (type === 'normal' && !title) {
+    alert("Por favor, preencha o título para eventos normais.");
+    document.getElementById("modal-event-title").focus();
+    return; // Para a execução aqui
+  }
+
+  // PREENCHIMENTO AUTOMÁTICO PARA OS OUTROS TIPOS
+  if (!title) {
+    if (type === 'feriado') title = "Feriado";
+    else if (type === 'bloqueado') title = "Dia Bloqueado";
+  }
+
+  // ENVIO PARA O BANCO DE DADOS
+  if (id) {
+    await updateEvent(id, title, desc, type);
+  } else {
+    await addEvent(date, title, desc, type);
+  }
 
   this.reset();
   document.getElementById("event-modal").classList.add("hidden");
 });
+
+document.getElementById("close-modal").onclick = () => document.getElementById("event-modal").classList.add("hidden");
 
 // --- RELATÓRIO & COPIAR ---
 let relatorioDataReferencia = new Date();
@@ -312,33 +304,22 @@ function gerarRelatorioSemana() {
   document.getElementById("relatorio-conteudo").innerHTML = html;
 }
 
-// FUNÇÃO NOVA: COPIAR
 window.copiarRelatorio = function() {
   const container = document.getElementById("relatorio-conteudo");
   if (!container) return;
-
   const textoParaCopiar = container.innerText;
-
   navigator.clipboard.writeText(textoParaCopiar)
     .then(() => {
       const btn = document.querySelector('.btn-copy');
       const textoOriginal = btn.innerHTML;
       btn.innerHTML = "✅ Copiado com Sucesso!";
       btn.style.backgroundColor = "#00b894";
-      setTimeout(() => {
-        btn.innerHTML = textoOriginal;
-        btn.style.backgroundColor = "#6c5ce7";
-      }, 2000);
+      setTimeout(() => { btn.innerHTML = textoOriginal; btn.style.backgroundColor = "#6c5ce7"; }, 2000);
     })
-    .catch(err => {
-      console.error(err);
-      alert("Erro ao copiar.");
-    });
+    .catch(err => { alert("Erro ao copiar."); });
 };
 
-document.getElementById("close-relatorio").addEventListener("click", () => {
-  document.getElementById("relatorio-modal").classList.add("hidden");
-});
+document.getElementById("close-relatorio").onclick = () => document.getElementById("relatorio-modal").classList.add("hidden");
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
