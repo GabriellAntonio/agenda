@@ -27,7 +27,6 @@
 </div>
 
 <div id="calendar" class="calendar"></div>
-
 <div id="event-list"></div>
 
 <div id="event-modal" class="modal hidden">
@@ -44,9 +43,18 @@
       </div>
 
       <div class="form-group">
-        <label for="modal-event-title">Título:</label>
-        <input type="text" id="modal-event-title" placeholder="Ex: Viagem, Recesso..." required>
+        <label for="modal-event-type">Tipo de Registro:</label>
+        <select id="modal-event-type" class="modal-select">
+          <option value="normal">Evento</option>
+          <option value="feriado">Feriado</option>
+          <option value="bloqueado">Bloquear Dia</option>
+        </select>
       </div>
+
+<div class="form-group">
+  <label for="modal-event-title">Título <span class="optional">(Opcional para Feriado/Bloqueio)</span>:</label>
+  <input type="text" id="modal-event-title" placeholder="Ex: Viagem, Recesso...">
+</div>
 
       <div class="form-group">
         <label for="modal-event-desc">Descrição <span class="optional">(Opcional)</span>:</label>
