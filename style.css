@@ -411,3 +411,38 @@ h1 {
   transform: none !important;
   background-color: #f01f1f !important;
 }
+/* Garante que o dia com classe 'feriado' fique vermelho */
+.day.feriado-manual {
+  background-color: #f01f1f !important;
+  color: white !important;
+}
+
+/* Estilo para dia bloqueado (cinza escuro e cursor proibido) */
+.day.bloqueado-manual {
+  background-color: #2d3436 !important;
+  cursor: not-allowed !important;
+  opacity: 0.8;
+}
+
+/* Ajuste para que o texto dentro do dia fique legível no fundo vermelho/preto */
+.day.feriado-manual .date, .day.bloqueado-manual .date {
+  color: #fff;
+}
+.modal-select {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 1.1rem;
+  font-family: 'Segoe UI', sans-serif;
+  border: 2px solid #dfe6e9;
+  border-radius: 8px;
+  background-color: #fff;
+  outline: none;
+  transition: border-color 0.3s;
+  cursor: pointer;
+}
+
+.modal-select:focus {
+  border-color: #0984e3;
+}
+.feriado-manual { background-color: #f01f1f !important; color: white; }
+.bloqueado-manual { background-color: #2d3436 !important; color: white; }
