@@ -17,180 +17,190 @@ function hideLoading() { if (loadingOverlay) loadingOverlay.classList.add('hidde
 
 // --- BANCO DE DADOS ---
 async function fetchEvents() {
-  showLoading();
-  const { data, error } = await client.from('events').select('*');
-  
-  if (!error) {
-    events = {};
-    data.forEach(ev => {
-      if (!events[ev.date]) events[ev.date] = [];
-      events[ev.date].push({
-        id: ev.id,
-        title: ev.title,
-        desc: ev.description,
-        done: ev.done,
-        type: ev.type || 'normal' // Captura o tipo para pintar o dia
-      });
-    });
-    loadCalendar();
-  }
-  hideLoading();
+    showLoading();
+    const { data, error } = await client.from('events').select('*');
+    if (!error) {
+        events = {};
+        data.forEach(ev => {
+            if (!events[ev.date]) events[ev.date] = [];
+            events[ev.date].push({
+                id: ev.id,
+                title: ev.title,
+                desc: ev.description,
+                done: ev.done,
+                type: ev.type || 'normal'
+            });
+        });
+        loadCalendar();
+    }
+    hideLoading();
 }
 
 async function addEvent(date, title, desc, type) {
-  showLoading();
-  await client.from('events').insert({ date, title, description: desc, done: false, type: type });
-  fetchEvents();
+    showLoading();
+    await client.from('events').insert({ date, title, description: desc, done: false, type: type });
+    fetchEvents();
 }
 
 async function updateEvent(id, title, desc, type) {
-  showLoading();
-  await client.from('events').update({ title, description: desc, type: type }).eq('id', id);
-  fetchEvents();
+    showLoading();
+    await client.from('events').update({ title, description: desc, type: type }).eq('id', id);
+    fetchEvents();
 }
 
 async function deleteEvent(id) {
-  if(!confirm("Tem certeza que deseja excluir?")) return;
-  showLoading();
-  await client.from('events').delete().eq('id', id);
-  fetchEvents();
+    if (!confirm("Tem certeza que deseja excluir?")) return;
+    showLoading();
+    await client.from('events').delete().eq('id', id);
+    fetchEvents();
 }
 
-window.toggleDone = async function(id, status) {
-  const { error } = await client.from('events').update({ done: status }).eq('id', id);
-  if (!error) {
-    for (let date in events) {
-      const ev = events[date].find(e => e.id == id);
-      if (ev) { ev.done = status; break; }
+window.toggleDone = async function (id, status) {
+    const { error } = await client.from('events').update({ done: status }).eq('id', id);
+    if (!error) {
+        fetchEvents();
     }
-    loadCalendar();
-  }
 };
 
 // --- NAVEGAÇÃO ---
-window.changeMonth = function(offset) {
-  currentDate.setMonth(currentDate.getMonth() + offset);
-  loadCalendar();
+window.changeMonth = function (offset) {
+    currentDate.setMonth(currentDate.getMonth() + offset);
+    loadCalendar();
 };
 
-window.goToToday = function() {
-  currentDate = new Date();
-  loadCalendar();
+window.goToToday = function () {
+    currentDate = new Date();
+    loadCalendar();
 };
 
 // --- RENDERIZAÇÃO ---
 function loadCalendar() {
-  calendar.innerHTML = '';
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  
-  const monthName = currentDate.toLocaleDateString('pt-BR', { month: 'long' });
-  monthYearLabel.innerText = `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${year}`;
+    calendar.innerHTML = '';
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-  weekdays.forEach(day => {
-    const header = document.createElement('div');
-    header.className = 'day-header';
-    header.innerText = day;
-    calendar.appendChild(header);
-  });
+    const monthName = currentDate.toLocaleDateString('pt-BR', { month: 'long' });
+    monthYearLabel.innerText = `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${year}`;
 
-  const firstDay = new Date(year, month, 1).getDay();
-  for (let i = 0; i < firstDay; i++) {
-    const empty = document.createElement('div');
-    empty.className = 'day';
-    empty.style.background = 'transparent';
-    empty.style.border = 'none';
-    calendar.appendChild(empty);
-  }
+    const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    weekdays.forEach(day => {
+        const header = document.createElement('div');
+        header.className = 'day-header';
+        header.innerText = day;
+        calendar.appendChild(header);
+    });
 
-  const today = new Date();
-
-  // Feriados Fixos
-  const feriadosFixos = {
-    [`${year}-01-01`]: 'Ano Novo 🥂',
-    [`${year}-04-21`]: 'Tiradentes 🫡',
-    [`${year}-05-01`]: 'Dia do Trabalho',
-    [`${year}-09-07`]: 'Independência 🇧🇷',
-    [`${year}-10-12`]: 'N. Sra. Aparecida 👸🏾',
-    [`${year}-11-02`]: 'Finados 🪦',
-    [`${year}-11-15`]: 'Proc. República 🫡',
-    [`${year}-11-20`]: 'Consciência Negra ✊🏿',
-    [`${year}-12-25`]: 'Natal 🎅',
-  };
-
-  const vesperas = {
-    [`${year}-12-24`]: 'Véspera Natal 🎄',
-    [`${year}-12-31`]: 'Véspera Ano Novo 🥂'
-  };
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const monthStr = (month + 1).toString().padStart(2, '0');
-    const dayStr = day.toString().padStart(2, '0');
-    const dateStr = `${year}-${monthStr}-${dayStr}`;
-
-    const dayEl = document.createElement('div');
-    dayEl.className = 'day';
-    dayEl.dataset.date = dateStr;
-
-    const dateDiv = document.createElement('div');
-    dateDiv.className = 'date';
-    dateDiv.innerText = day;
-    dayEl.appendChild(dateDiv);
-
-    // Feriados Fixos
-    if (feriadosFixos[dateStr]) {
-      addLabelToDay(dayEl, feriadosFixos[dateStr], 'holiday');
-    } else if (vesperas[dateStr]) {
-      addLabelToDay(dayEl, vesperas[dateStr], 'holiday');
+    const firstDay = new Date(year, month, 1).getDay();
+    for (let i = 0; i < firstDay; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'day';
+        empty.style.background = 'transparent';
+        empty.style.border = 'none';
+        calendar.appendChild(empty);
     }
 
-    // Eventos e Pintura do Dia
-    if (events[dateStr]) {
-      const dayEvents = events[dateStr];
-      dayEvents.forEach(ev => {
-        if (ev.type === 'feriado') dayEl.classList.add('feriado-manual');
-        if (ev.type === 'bloqueado') dayEl.classList.add('bloqueado-manual');
-      });
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-      const MAX_VISIBLE = 2;
-      dayEvents.slice(0, MAX_VISIBLE).forEach((ev) => {
-        dayEl.appendChild(createEventElement(ev, dateStr));
-      });
-      if (dayEvents.length > MAX_VISIBLE) {
-        const more = document.createElement('div');
-        more.className = 'more-events';
-        more.innerText = `+ ${dayEvents.length - MAX_VISIBLE}`;
-        dayEl.appendChild(more);
-      }
-    }
-
-    if (today.toDateString() === new Date(year, month, day).toDateString()) dayEl.classList.add('today');
-
-    dayEl.onclick = (e) => {
-      if (e.target.closest('.event') || e.target.closest('input') || e.target.closest('button')) return;
-      openEventModalEdit({ date: dateStr });
+    const feriadosFixos = {
+        [`${year}-01-01`]: 'Ano Novo 🥂',
+        [`${year}-04-21`]: 'Tiradentes 🫡',
+        [`${year}-05-01`]: 'Dia do Trabalho',
+        [`${year}-09-07`]: 'Independência 🇧🇷',
+        [`${year}-10-12`]: 'N. Sra. Aparecida 👸🏾',
+        [`${year}-11-02`]: 'Finados 🪦',
+        [`${year}-11-15`]: 'Proc. República 🫡',
+        [`${year}-11-20`]: 'Consciência Negra ✊🏿',
+        [`${year}-12-25`]: 'Natal 🎅',
     };
-    calendar.appendChild(dayEl);
-  }
+
+    const vesperas = {
+        [`${year}-12-24`]: 'Véspera Natal 🎄',
+        [`${year}-12-31`]: 'Véspera Ano Novo 🥂'
+    };
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const monthStr = (month + 1).toString().padStart(2, '0');
+        const dayStr = day.toString().padStart(2, '0');
+        const dateStr = `${year}-${monthStr}-${dayStr}`;
+
+        const dayEl = document.createElement('div');
+        dayEl.className = 'day';
+        dayEl.dataset.date = dateStr;
+
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'date';
+        dateDiv.innerText = day;
+        dayEl.appendChild(dateDiv);
+
+        // --- DRAG & DROP: ZONA DE DROP ---
+        dayEl.ondragover = (e) => e.preventDefault();
+        dayEl.ondragenter = () => dayEl.classList.add('drag-over');
+        dayEl.ondragleave = () => dayEl.classList.remove('drag-over');
+        dayEl.ondrop = async (e) => {
+            e.preventDefault();
+            dayEl.classList.remove('drag-over');
+            const eventId = e.dataTransfer.getData("text/plain");
+            const newDate = dayEl.dataset.date;
+            showLoading();
+            const { error } = await client.from('events').update({ date: newDate }).eq('id', eventId);
+            if (!error) fetchEvents();
+            else hideLoading();
+        };
+
+        if (feriadosFixos[dateStr]) addLabelToDay(dayEl, feriadosFixos[dateStr], 'holiday');
+        else if (vesperas[dateStr]) addLabelToDay(dayEl, vesperas[dateStr], 'holiday');
+
+        if (events[dateStr]) {
+            events[dateStr].forEach(ev => {
+                if (ev.type === 'feriado') dayEl.classList.add('feriado-manual');
+                if (ev.type === 'bloqueado') dayEl.classList.add('bloqueado-manual');
+            });
+            events[dateStr].forEach(ev => dayEl.appendChild(createEventElement(ev, dateStr)));
+        }
+
+        if (today.toDateString() === new Date(year, month, day).toDateString()) dayEl.classList.add('today');
+
+        dayEl.onclick = (e) => {
+            if (e.target.closest('.event') || e.target.closest('input') || e.target.closest('button')) return;
+            openEventModalEdit({ date: dateStr });
+        };
+        calendar.appendChild(dayEl);
+    }
 }
 
-// A FUNÇÃO QUE FALTAVA
 function addLabelToDay(element, text, className) {
-  const div = document.createElement('div');
-  div.className = 'feriado-nome';
-  div.innerText = text;
-  element.appendChild(div);
-  element.classList.add(className);
+    const div = document.createElement('div');
+    div.className = 'feriado-nome';
+    div.innerText = text;
+    element.appendChild(div);
+    element.classList.add(className);
 }
 
 function createEventElement(ev, dateStr) {
-  const evEl = document.createElement('div');
-  const isDone = ev.done;
-  evEl.className = `event ${isDone ? 'done' : ''}`;
-  evEl.innerHTML = `
-    <label title="${ev.title}">
+    const evEl = document.createElement('div');
+    const isDone = ev.done;
+    const eventDate = new Date(dateStr + 'T00:00:00');
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    let bgColor = '';
+    // SE PASSOU E NÃO FOI FEITO: FICA VERMELHO
+    if (!isDone && eventDate < hoje) {
+        bgColor = 'background-color: #fab1a0 !important;'; 
+    }
+
+    evEl.className = `event ${isDone ? 'done' : ''}`;
+    evEl.draggable = true;
+    evEl.ondragstart = (e) => {
+        e.dataTransfer.setData("text/plain", ev.id);
+        evEl.style.opacity = "0.4";
+    };
+    evEl.ondragend = () => evEl.style.opacity = "1";
+
+    evEl.innerHTML = `
+    <label style="${bgColor}" title="${ev.title}">
       <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleDone('${ev.id}', this.checked)">
       <span class="event-text" style="text-decoration: ${isDone ? 'line-through' : 'none'};">${ev.title}</span>
     </label>
@@ -199,67 +209,48 @@ function createEventElement(ev, dateStr) {
       <button onclick="deleteEvent('${ev.id}')">🗑️</button>
     </div>
   `;
-  return evEl;
+    return evEl;
 }
 
 // --- MODAIS ---
 function openEventModalEdit({ id = null, title = "", description = "", date, type = "normal" }) {
-  document.getElementById("modal-event-id").value = id || "";
-  document.getElementById("modal-event-title").value = title;
-  document.getElementById("modal-event-desc").value = description;
-  document.getElementById("modal-event-date").value = date;
-  document.getElementById("modal-event-type").value = type;
-
-  document.getElementById("modal-title-label").textContent = id ? "Editar Evento" : "Adicionar Evento";
-  document.getElementById("event-modal").classList.remove("hidden");
+    document.getElementById("modal-event-id").value = id || "";
+    document.getElementById("modal-event-title").value = title;
+    document.getElementById("modal-event-desc").value = description;
+    document.getElementById("modal-event-date").value = date;
+    document.getElementById("modal-event-type").value = type;
+    document.getElementById("modal-title-label").textContent = id ? "Editar Evento" : "Adicionar Evento";
+    document.getElementById("event-modal").classList.remove("hidden");
 }
 
-window.editEvent = function(id, title, desc, date, type) {
-  openEventModalEdit({
-    id,
-    title: decodeURIComponent(title),
-    description: decodeURIComponent(desc),
-    date,
-    type
-  });
+window.editEvent = function (id, title, desc, date, type) {
+    openEventModalEdit({ id, title: decodeURIComponent(title), description: decodeURIComponent(desc), date, type });
 };
 
 document.getElementById("modal-event-form").addEventListener("submit", async function (e) {
-  e.preventDefault();
-  
-  const id = document.getElementById("modal-event-id").value;
-  const date = document.getElementById("modal-event-date").value;
-  let title = document.getElementById("modal-event-title").value.trim();
-  const desc = document.getElementById("modal-event-desc").value;
-  const type = document.getElementById("modal-event-type").value;
+    e.preventDefault();
+    const id = document.getElementById("modal-event-id").value;
+    const date = document.getElementById("modal-event-date").value;
+    let title = document.getElementById("modal-event-title").value.trim();
+    const desc = document.getElementById("modal-event-desc").value;
+    const type = document.getElementById("modal-event-type").value;
 
-  // VERIFICAÇÃO DE OBRIGATORIEDADE
-  if (type === 'normal' && !title) {
-    alert("Por favor, preencha o título para eventos normais.");
-    document.getElementById("modal-event-title").focus();
-    return; // Para a execução aqui
-  }
+    if (type === 'normal' && !title) {
+        alert("Por favor, preencha o título para eventos normais.");
+        return;
+    }
+    if (!title) title = (type === 'feriado') ? "Feriado" : "Dia Bloqueado";
 
-  // PREENCHIMENTO AUTOMÁTICO PARA OS OUTROS TIPOS
-  if (!title) {
-    if (type === 'feriado') title = "Feriado";
-    else if (type === 'bloqueado') title = "Dia Bloqueado";
-  }
+    if (id) await updateEvent(id, title, desc, type);
+    else await addEvent(date, title, desc, type);
 
-  // ENVIO PARA O BANCO DE DADOS
-  if (id) {
-    await updateEvent(id, title, desc, type);
-  } else {
-    await addEvent(date, title, desc, type);
-  }
-
-  this.reset();
-  document.getElementById("event-modal").classList.add("hidden");
+    this.reset();
+    document.getElementById("event-modal").classList.add("hidden");
 });
 
 document.getElementById("close-modal").onclick = () => document.getElementById("event-modal").classList.add("hidden");
 
-// --- RELATÓRIO & COPIAR ---
+// --- RELATÓRIO ---
 let relatorioDataReferencia = new Date();
 
 window.abrirRelatorio = function() {
@@ -307,16 +298,12 @@ function gerarRelatorioSemana() {
 window.copiarRelatorio = function() {
   const container = document.getElementById("relatorio-conteudo");
   if (!container) return;
-  const textoParaCopiar = container.innerText;
-  navigator.clipboard.writeText(textoParaCopiar)
-    .then(() => {
-      const btn = document.querySelector('.btn-copy');
-      const textoOriginal = btn.innerHTML;
-      btn.innerHTML = "✅ Copiado com Sucesso!";
-      btn.style.backgroundColor = "#00b894";
-      setTimeout(() => { btn.innerHTML = textoOriginal; btn.style.backgroundColor = "#6c5ce7"; }, 2000);
-    })
-    .catch(err => { alert("Erro ao copiar."); });
+  navigator.clipboard.writeText(container.innerText).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    const textoOriginal = btn.innerHTML;
+    btn.innerHTML = "✅ Copiado!";
+    setTimeout(() => { btn.innerHTML = textoOriginal; }, 2000);
+  });
 };
 
 document.getElementById("close-relatorio").onclick = () => document.getElementById("relatorio-modal").classList.add("hidden");
@@ -328,5 +315,4 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-// Inicialização
 fetchEvents();
